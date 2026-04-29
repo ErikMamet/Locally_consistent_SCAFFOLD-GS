@@ -4,6 +4,10 @@ compile_commands.json
 # Visual Studio Code configs.
 .vscode/
 
+# DATASET AND RESULTS
+results
+Neur3D
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
