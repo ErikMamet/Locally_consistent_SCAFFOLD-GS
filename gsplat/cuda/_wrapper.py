@@ -37,7 +37,6 @@ def selective_adam_update(
 def _make_lazy_cuda_obj(name: str) -> Any:
     # pylint: disable=import-outside-toplevel
     from ._backend import _C
-
     obj = _C
     for name_split in name.split("."):
         obj = getattr(_C, name_split)
@@ -302,6 +301,7 @@ def fully_fused_projection(
 
     viewmats = viewmats.contiguous()
     Ks = Ks.contiguous()
+
     if packed:
         return _FullyFusedProjectionPacked.apply(
             means,
@@ -321,6 +321,7 @@ def fully_fused_projection(
             camera_model,
         )
     else:
+
         return _FullyFusedProjection.apply(
             means,
             covars,
@@ -796,7 +797,6 @@ class _FullyFusedProjection(torch.autograd.Function):
         camera_model_type = _make_lazy_cuda_obj(
             f"CameraModelType.{camera_model.upper()}"
         )
-
         # "covars" and {"quats", "scales"} are mutually exclusive
         radii, means2d, depths, conics, compensations = _make_lazy_cuda_func(
             "fully_fused_projection_fwd"

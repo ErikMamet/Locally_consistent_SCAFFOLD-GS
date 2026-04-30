@@ -32,6 +32,7 @@ from torchmetrics.image.lpip import LearnedPerceptualImagePatchSimilarity
 from typing_extensions import Literal, assert_never
 from gsplat.compression_simulation.ops import fake_quantize_factors
 from utils import CameraEmbedding, knn, set_random_seed, find_k_neighbors
+from stats_utils import per_gaussian_offset_alignement, per_gaussian_color_stats, per_gaussian_offset_stats, per_gaussian_opacity_stats, per_gaussian_quaternion_geodesic, per_gaussian_scale_stats
 import random
 
 from gsplat.compression import GIFStreamEnd2endCompression, GIFStream2dcodecCompression
@@ -40,6 +41,7 @@ from gsplat.rendering import rasterization, view_to_visible_anchors
 from gsplat.strategy import GIFStreamStrategy
 
 from gsplat.compression_simulation.simulation import GIFStreamCompressionSimulation
+
 
 class ProfilerConfig:
     def __init__(self):
@@ -156,7 +158,8 @@ class Config:
     init_scale: float = 1.0
     # Weight for SSIM loss
     ssim_lambda: float = 0.2
-
+    # Weight for offset loss
+    offset_lambda: float = 0
     # Near plane clipping distance
     near_plane: float = 0.01
     # Far plane clipping distance
@@ -342,7 +345,7 @@ def create_splats_with_optimizers(
     quats[:,0] = 1
     opacities = torch.logit(torch.full((N,1), init_opacity))  # [N,]
     anchor_features = torch.zeros((N, anchor_feature_dim))
-    offsets = torch.zeros((N, n_offsets, 3))
+    offsets = torch.rand((N, n_offsets, 3)) * dist_avg.view(N, 1, 1) / 2 # NEW 
     time_features = torch.zeros((N, GOP_size, c_perframe))
     factors = torch.zeros((N, 4)) # [time_feature factor, motion_factor, knn_factor, pruning_factor]
     
@@ -583,7 +586,8 @@ class Runner:
         # Losses & Metrics.
         self.ssim = StructuralSimilarityIndexMeasure(data_range=1.0).to(self.device)
         self.psnr = PeakSignalNoiseRatio(data_range=1.0).to(self.device)
-
+        self.init_avg_offset_len = None
+        
         if cfg.lpips_net == "alex":
             self.lpips = LearnedPerceptualImagePatchSimilarity(
                 net_type="alex", normalize=False
@@ -789,6 +793,7 @@ class Runner:
         regular: bool = False,
         step: int = -1,
         camera_ids: Tensor = None,
+        no_masks: bool = False
     ) -> Dict:
         """
         Compute the neural Gaussian parameters for the current view and time.
@@ -821,6 +826,9 @@ class Runner:
             packed=packed,
             rasterize_mode=rasterize_mode,
         )
+        if no_masks == True : #at test time get stats for all gaussians
+            print("!! WARNING !! we no longer apply masks to anchors and get stats for all anchors")
+            visible_anchor_mask = torch.ones_like(visible_anchor_mask, dtype=bool)
 
         # Select anchors and offsets for visible Gaussians
         if not self.cfg.compression_sim:
@@ -829,7 +837,6 @@ class Runner:
         else:
             selected_anchors = self.comp_sim_splats["anchors"][visible_anchor_mask]  # [M, 3]
             selected_offsets = self.comp_sim_splats["offsets"][visible_anchor_mask]  # [M, k, 3]
-
         # Decode neural features (opacity, color, scale/rotation, motion, etc.)
         results = self.decoding_features(
             camtoworlds,
@@ -855,7 +862,6 @@ class Runner:
             smooth_loss = sum([torch.abs(results[k] - results_[k]).mean() for k in results.keys() if (k in item_list)])
         else:
             smooth_loss = 0
-
         # Unpack decoded features
         neural_opacity = results["neural_opacity"]
         neural_colors = results["neural_colors"]
@@ -866,6 +872,10 @@ class Runner:
         
         # Mask out Gaussians with non-positive opacity (they do not contribute to rendering)
         neural_selection_mask = (neural_opacity > 0.0).view(-1)  # [M*k]
+        if no_masks == True:
+            neural_selection_mask = torch.ones(neural_selection_mask.shape, dtype=bool)
+            print("!! WARNING !! neural gaussians are no longer being masked (make sure it makes no difference on results)")
+
         # Apply motion offset to anchor positions
         anchor_offset = motion[:,-7:-4]
         selected_anchors += anchor_offset
@@ -873,7 +883,12 @@ class Runner:
         anchor_rot = torch.nn.functional.normalize(0.1 * motion[:,-4:] + torch.tensor([[1,0,0,0]],device="cuda"))
         anchor_rotation = quaternion_to_rotation_matrix(anchor_rot)
         # Transform offsets by scale and rotation
-        selected_offsets = torch.bmm(selected_offsets.view(-1,self.cfg.n_offsets,3) * selected_scales.unsqueeze(1)[:,:,:3] ,anchor_rotation.reshape((-1,3,3)).transpose(1, 2)).reshape((-1,3))
+
+        selected_offsets = torch.bmm(selected_offsets.view(-1,self.cfg.n_offsets,3) * selected_scales.unsqueeze(1)[:,:,:3] ,anchor_rotation.reshape((-1,3,3)).transpose(1, 2))
+        tmp1=selected_offsets
+        selected_offsets = selected_offsets.reshape((-1,3))
+        tmp2=selected_offsets.reshape((tmp1.shape[0],-1,3))
+        assert torch.allclose(tmp1,tmp2) #this ensures that reshaping strategy used to measure stats is correct
         # Repeat scales and anchors for each offset
         scales_repeated = (selected_scales.unsqueeze(1).repeat(1, self.cfg.n_offsets, 1).view(-1, 6))  # [M*k, 6]
         anchors_repeated = (selected_anchors.unsqueeze(1).repeat(1, self.cfg.n_offsets, 1).view(-1, 3))  # [M*k, 3]
@@ -898,6 +913,7 @@ class Runner:
 
         info = {
             "means": means,  # Final positions of Gaussians
+            "offsets": offsets, # Offsets
             "colors": selected_colors,  # RGB colors
             "opacities": selected_opacity,  # Opacity values
             "scales": scales,  # Scale parameters
@@ -923,6 +939,7 @@ class Runner:
         regular: bool = False,
         step: int = -1,
         camera_ids: Tensor = None,
+        no_masks = False,
         **kwargs,
     ) -> Tuple[Tensor, Tensor, Dict]:
         neural_gaussians = self.get_neural_gaussians(
@@ -937,12 +954,14 @@ class Runner:
             regular=regular,
             step=step,
             camera_ids=camera_ids,
+            no_masks=no_masks
         )
         
         means = neural_gaussians["means"]  # [N, 3]
         quats = neural_gaussians["quats"]  # [N, 4]
         scales = neural_gaussians["scales"]  # [N, 3]
         opacities = neural_gaussians["opacities"]  # [N,]
+
 
         image_ids = kwargs.pop("image_ids", None)
         
@@ -983,6 +1002,10 @@ class Runner:
         info["gop"] = self.cfg.GOP_size
         info["time"] = int(time * (self.cfg.GOP_size - 1))
         info["motion"] = neural_gaussians["motion"]
+        info["quaternions"] = quats
+        info["means"]=means
+        info["colors"]=colors
+
         return render_colors, render_alphas, info
 
     def train(self, init_step: int=0):
@@ -991,7 +1014,8 @@ class Runner:
         device = self.device
         world_rank = self.world_rank
         world_size = self.world_size
-
+        print("DEVICE =", self.device)
+        print("CUDA AVAILABLE =", torch.cuda.is_available())
         # Dump cfg.
         if world_rank == 0:
             with open(f"{cfg.result_dir}/cfg.yml", "w") as f:
@@ -1036,7 +1060,7 @@ class Runner:
 
             # Training loop.
             global_tic = time.time()
-            pbar = tqdm.tqdm(range(init_step, max_steps))
+            pbar = tqdm.tqdm(range(init_step, max_steps), ncols=50)
             for step in pbar:
                 if not cfg.disable_viewer:
                     while self.viewer.state.status == "paused":
@@ -1055,6 +1079,7 @@ class Runner:
                 #* batch forward
                 info_list = []
                 for batch_ind in range(self.cfg.batch_size):
+
                     if batch_ind >= batch_data["camtoworld"].shape[0]:
                         info_list.append(None)
                         continue
@@ -1085,7 +1110,6 @@ class Runner:
 
                     if cfg.compression_sim:
                         self.comp_sim_splats, self.esti_bits_dict = self.compression_sim_method.simulate_compression(self.splats, step, int(float(data["time"]) * (self.cfg.GOP_size - 1)), self.cfg.entropy_channel)
-
                     # forward
                     renders, alphas, info = self.rasterize_splats(
                         camtoworlds=camtoworlds,
@@ -1124,10 +1148,15 @@ class Runner:
 
                     # loss
                     l1loss = F.l1_loss(colors, pixels)
+
+                    offset_len = torch.norm(self.splats["offsets"],dim=2) #(N,5)
+                    if step == init_step:
+                        self.init_avg_offset_len = torch.mean(offset_len).detach().item()
+                    loss_offset = torch.mean(offset_len)/self.init_avg_offset_len
                     ssimloss = 1.0 - fused_ssim(
                         colors.permute(0, 3, 1, 2), pixels.permute(0, 3, 1, 2), padding="valid"
                     )
-                    loss = l1loss * (1.0 - cfg.ssim_lambda) + ssimloss * cfg.ssim_lambda + info["scales"].prod(dim=1).mean() * cfg.scale_reg + info["reg_loss"] * cfg.factor_reg + info["smooth_loss"] * cfg.smooth_reg
+                    loss = l1loss * (1.0 - cfg.ssim_lambda) + ssimloss * cfg.ssim_lambda + info["scales"].prod(dim=1).mean() * cfg.scale_reg + info["reg_loss"] * cfg.factor_reg + info["smooth_loss"] * cfg.smooth_reg + loss_offset*cfg.offset_lambda
                     scale_loss = info["scales"].prod(dim=1).mean()
                     reg_loss = info["reg_loss"]
                     smooth_loss = info["smooth_loss"]
@@ -1151,7 +1180,7 @@ class Runner:
                     loss.backward()
                     info_list.append(info)
                 
-                desc = f"loss={loss_show.item():.3f}| " f"sh degree={sh_degree_to_use}| "
+                desc = f"loss={loss_show.item():.3f}| "
                 pbar.set_description(desc)
 
                 # tensorboard monitor
@@ -1161,6 +1190,7 @@ class Runner:
                     self.writer.add_scalar("train/scale_loss", scale_loss.item(), step)
                     self.writer.add_scalar("train/reg_loss", reg_loss.item() if reg_loss>0 else reg_loss, step)
                     self.writer.add_scalar("train/smooth_loss", smooth_loss.item() if smooth_loss>0 else smooth_loss, step)
+                    self.writer.add_scalar("train/offset_loss", loss_offset.item(), step)
                     self.writer.add_scalar("train/l1loss", l1loss.item(), step)
                     self.writer.add_scalar("train/ssimloss", ssimloss.item(), step)
                     self.writer.add_scalar("train/num_anchor", len(self.splats["anchors"]), step)
@@ -1303,22 +1333,30 @@ class Runner:
         world_rank = self.world_rank
         world_size = self.world_size
 
+        # Per gaussian stats will always be given as a list of N elements (per-gaussian stats), these stats can then be averages, the std or percentiles measured
+        N = self.splats["anchors"].shape[0] #number of gaussians
+        
+        per_gaussian_stats = {"avg_offset_len":np.zeros(N), "std_offset_len": np.zeros(N), "pairwise_cosine_sim":np.zeros(N), "max_eigenval":np.zeros(N), "avg_color":np.zeros(N), "std_color":np.zeros(N), "avg_scale":np.zeros(N), "std_scale":np.zeros(N), "avg_opacity": np.zeros(N), "std_opacity" : np.zeros(N) ,"avg_angle_rad":np.zeros(N), "std_angle_rad":np.zeros(N)}
+        gaussian_n_viewed = np.zeros(N) # a counter for how many times the gaussian was viewed
+
         valloader = torch.utils.data.DataLoader(
             self.valset, batch_size=1, shuffle=False, num_workers=1
         )
         ellipse_time = 0
         metrics = defaultdict(list)
+
         for i, data in enumerate(valloader):
             camtoworlds = data["camtoworld"].to(device)
             Ks = data["K"].to(device)
             pixels = data["image"].to(device) / 255.0
             masks = data["mask"].to(device) if "mask" in data else None
+            assert(masks is None)
             camera_ids = data["camera_id"].to(device)
             height, width = pixels.shape[1:3]
 
             torch.cuda.synchronize()
             tic = time.time()
-            colors, _, _ = self.rasterize_splats(
+            colors0, neural_alphas0, info0 = self.rasterize_splats(
                 camtoworlds=camtoworlds,
                 Ks=Ks,
                 width=width,
@@ -1329,7 +1367,54 @@ class Runner:
                 masks=masks,
                 time=float(data["time"]),
                 camera_ids=camera_ids,
+                no_masks = True
             )  # [1, H, W, 3]
+
+            #view agnostic per_gaussian_stats (for offsets we want means to assert that the reshape is correctly done)
+            with torch.no_grad():
+                visible_anchor_mask = info0["anchor_visible_mask"].cpu().numpy()
+                opacity_mask = info0["neural_selection_mask"].cpu().numpy()
+                gaussian_n_viewed += visible_anchor_mask.astype(int)
+
+                avg_off, std_off = per_gaussian_offset_stats(self.splats["offsets"][visible_anchor_mask])
+                per_gaussian_stats["avg_offset_len"][visible_anchor_mask] += avg_off
+                per_gaussian_stats["std_offset_len"][visible_anchor_mask] += std_off
+
+                avg_align, max_eig = per_gaussian_offset_alignement(self.splats["offsets"][visible_anchor_mask])
+                per_gaussian_stats["pairwise_cosine_sim"][visible_anchor_mask] += avg_align
+                per_gaussian_stats["max_eigenval"][visible_anchor_mask] += max_eig
+
+                avg_c, std_c = per_gaussian_color_stats(info0["colors"])
+                per_gaussian_stats["avg_color"][visible_anchor_mask] += avg_c
+                per_gaussian_stats["std_color"][visible_anchor_mask] += std_c
+
+                avg_s, std_s = per_gaussian_scale_stats(info0["scales"])
+                per_gaussian_stats["avg_scale"][visible_anchor_mask] += avg_s
+                per_gaussian_stats["std_scale"][visible_anchor_mask] += std_s
+
+                avg_o, std_o = per_gaussian_opacity_stats(info0["neural_opacity"])
+                per_gaussian_stats["avg_opacity"][visible_anchor_mask] += avg_o
+                per_gaussian_stats["std_opacity"][visible_anchor_mask] += std_o
+
+                avg_q, std_q = per_gaussian_quaternion_geodesic(info0["quaternions"])
+                per_gaussian_stats["avg_angle_rad"][visible_anchor_mask] += avg_q
+                per_gaussian_stats["std_angle_rad"][visible_anchor_mask] += std_q
+
+            colors, neural_alphas, info = self.rasterize_splats(
+                camtoworlds=camtoworlds,
+                Ks=Ks,
+                width=width,
+                height=height,
+                sh_degree=None,
+                near_plane=cfg.near_plane,
+                far_plane=cfg.far_plane,
+                masks=masks,
+                time=float(data["time"]),
+                camera_ids=camera_ids,
+                no_masks = False
+            )  # [1, H, W, 3]
+            assert (torch.sum(info0["colors"][info["anchor_visible_mask"].repeat_interleave(5, dim=0)][info["neural_selection_mask"]] == info["colors"])).all
+
             torch.cuda.synchronize()
             ellipse_time += time.time() - tic
 
@@ -1352,6 +1437,7 @@ class Runner:
                 metrics["ssim"].append(self.ssim(colors_p, pixels_p))
                 metrics["lpips"].append(self.lpips(colors_p, pixels_p))
 
+        print(per_gaussian_stats)
         if world_rank == 0:
             ellipse_time /= len(valloader)
 
@@ -1604,6 +1690,8 @@ class Runner:
 
 
 def main(local_rank: int, world_rank, world_size: int, cfg: Config):
+    torch.manual_seed(42)
+    torch.cuda.manual_seed(42)
     if world_size > 1 and not cfg.disable_viewer:
         cfg.disable_viewer = True
         if world_rank == 0:
