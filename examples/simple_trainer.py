@@ -861,7 +861,7 @@ class Runner:
 
             # Training loop.
             global_tic = time.time()
-            pbar = tqdm.tqdm(range(init_step, max_steps))
+            pbar = tqdm.tqdm(range(init_step, max_steps), ncols=50)
             for step in pbar:
                 if not cfg.disable_viewer:
                     while self.viewer.state.status == "paused":
@@ -1010,14 +1010,14 @@ class Runner:
                 loss_show = loss.detach().cpu()
                 loss.backward()
                 
-                desc = f"loss={loss_show.item():.3f}| " f"sh degree={sh_degree_to_use}| "
+                desc = f"loss={loss_show.item():.3f}| "
                 if cfg.depth_loss:
                     desc += f"depth loss={depthloss.item():.6f}| "
                 if cfg.pose_opt and cfg.pose_noise:
                     # monitor the pose error if we inject noise
                     pose_err = F.l1_loss(camtoworlds_gt, camtoworlds)
                     desc += f"pose err={pose_err.item():.6f}| "
-                pbar.set_description(desc)
+                pbar.set_description(desc,refresh=True)
 
                 # tensorboard monitor
                 if world_rank == 0 and cfg.tb_every > 0 and step % cfg.tb_every == 0:

@@ -142,6 +142,63 @@ def per_gaussian_quaternion_geodesic(quaternions):
 
     return mean_dist.cpu().numpy(), std_dist.cpu().numpy()
 
+import os
+from collections import defaultdict
+import os
+from collections import defaultdict
+
+def measure_compress_kB(compress_dir: str):
+    """
+    Measures file sizes in kilobytes (kB) per category and total.
+    """
+
+    categories = {
+        "anchor_feat": "anchor_feat",
+        "anchor_xyz": "anchors_",
+        "factors": "factors",
+        "offsets": "offsets",
+        "opacities": "opacities",
+        "quats": "quats",
+        "scales": "scales",
+        "time_features": "time_features",
+        "neural_networks": "nets",
+        "metadata": "meta",
+    }
+
+    stats = defaultdict(float)
+    total_kb = 0.0
+
+    for root, _, files in os.walk(compress_dir):
+        for fname in files:
+            fpath = os.path.join(root, fname)
+
+            if not os.path.isfile(fpath):
+                continue
+
+            size_kb = os.path.getsize(fpath) / 1024.0
+            total_kb += size_kb
+
+            matched = False
+            for key, substr in categories.items():
+                if substr in fname:
+                    stats[key] += size_kb
+                    matched = True
+                    break
+
+            if not matched:
+                raise ValueError(f"Uncategorized file found: {fname}")
+
+    computed_sum = sum(stats.values())
+
+    # allow small floating-point tolerance
+    assert abs(total_kb - computed_sum) < 1e-6, (
+        f"Size mismatch: total={total_kb}, sum(categories)={computed_sum}"
+    )
+
+    stats["total_kb"] = total_kb
+
+    return dict(stats)
+
 ### #### main functions (all functions take in a torch tensor and must return numpy arrays) chat gpt prompt
 ### 
 ### def per_gaussian_offset_stats(offsets, means3D=None):

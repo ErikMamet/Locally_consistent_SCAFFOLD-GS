@@ -32,7 +32,7 @@ from torchmetrics.image.lpip import LearnedPerceptualImagePatchSimilarity
 from typing_extensions import Literal, assert_never
 from gsplat.compression_simulation.ops import fake_quantize_factors
 from utils import CameraEmbedding, knn, set_random_seed, find_k_neighbors
-from stats_utils import per_gaussian_offset_alignement, per_gaussian_color_stats, per_gaussian_offset_stats, per_gaussian_opacity_stats, per_gaussian_quaternion_geodesic, per_gaussian_scale_stats
+from stats_utils import per_gaussian_offset_alignement, per_gaussian_color_stats, per_gaussian_offset_stats, per_gaussian_opacity_stats, per_gaussian_quaternion_geodesic, per_gaussian_scale_stats, measure_compress_kB
 import random
 
 from gsplat.compression import GIFStreamEnd2endCompression, GIFStream2dcodecCompression
@@ -1356,7 +1356,7 @@ class Runner:
 
             torch.cuda.synchronize()
             tic = time.time()
-            colors0, neural_alphas0, info0 = self.rasterize_splats(
+            colors, _, info0 = self.rasterize_splats(
                 camtoworlds=camtoworlds,
                 Ks=Ks,
                 width=width,
@@ -1400,20 +1400,20 @@ class Runner:
                 per_gaussian_stats["avg_angle_rad"][visible_anchor_mask] += avg_q
                 per_gaussian_stats["std_angle_rad"][visible_anchor_mask] += std_q
 
-            colors, neural_alphas, info = self.rasterize_splats(
-                camtoworlds=camtoworlds,
-                Ks=Ks,
-                width=width,
-                height=height,
-                sh_degree=None,
-                near_plane=cfg.near_plane,
-                far_plane=cfg.far_plane,
-                masks=masks,
-                time=float(data["time"]),
-                camera_ids=camera_ids,
-                no_masks = False
-            )  # [1, H, W, 3]
-            assert (torch.sum(info0["colors"][info["anchor_visible_mask"].repeat_interleave(5, dim=0)][info["neural_selection_mask"]] == info["colors"])).all
+            #colors, neural_alphas, info = self.rasterize_splats(
+            #    camtoworlds=camtoworlds,
+            #    Ks=Ks,
+            #    width=width,
+            #    height=height,
+            #    sh_degree=None,
+            #    near_plane=cfg.near_plane,
+            #    far_plane=cfg.far_plane,
+            #    masks=masks,
+            #    time=float(data["time"]),
+            #    camera_ids=camera_ids,
+            #    no_masks = False
+            #)  # [1, H, W, 3]
+            #assert (torch.sum(info0["colors"][info["anchor_visible_mask"].repeat_interleave(5, dim=0)][info["neural_selection_mask"]] == info["colors"])).all
 
             torch.cuda.synchronize()
             ellipse_time += time.time() - tic
@@ -1436,30 +1436,58 @@ class Runner:
                 metrics["psnr"].append(self.psnr(colors_p, pixels_p))
                 metrics["ssim"].append(self.ssim(colors_p, pixels_p))
                 metrics["lpips"].append(self.lpips(colors_p, pixels_p))
-
+        
+        #avoid division by 0
+        valid_mask = gaussian_n_viewed > 0
+        for k in per_gaussian_stats:
+            per_gaussian_stats[k][valid_mask] /= gaussian_n_viewed[valid_mask]
         print(per_gaussian_stats)
+        per_gaussian_stats.update({
+            "num_anchors": len(self.splats["anchors"]),
+        })
         if world_rank == 0:
             ellipse_time /= len(valloader)
 
             stats = {k: torch.stack(v).mean().item() for k, v in metrics.items()}
+            def make_serializable(v):
+                if isinstance(v, np.ndarray):
+                    return v.mean().item()
+                elif isinstance(v, (np.generic,)):  # numpy scalar types
+                    return v.item()
+                else:
+                    return v  # assume already serializable
+
+            stats2 = {k: make_serializable(v) for k, v in per_gaussian_stats.items()}
             stats.update(
                 {
                     "ellipse_time": ellipse_time,
-                    "num_GS": len(self.splats["anchors"]),
                 }
             )
             print(
                 f"PSNR: {stats['psnr']:.3f}, SSIM: {stats['ssim']:.4f}, LPIPS: {stats['lpips']:.3f} "
                 f"Time: {stats['ellipse_time']:.3f}s/image "
-                f"Number of GS: {stats['num_GS']}"
+                f"Num anchors: {per_gaussian_stats['num_anchors']:.3f}"
             )
             # save stats as json
+            if stage == "compress":
+                world_rank = self.world_rank
+                compress_dir = f"{cfg.result_dir}/compression/rank{world_rank}"
+                mem_stats = measure_compress_kB(compress_dir)
+
+                combined = {"metrics": stats,
+                            "per_gaussian_stats": stats2,
+                            "mem_stats": mem_stats}
+            else:
+                combined = {"metrics": stats,
+                            "per_gaussian_stats": stats2}
             with open(f"{self.stats_dir}/{stage}_step{step:04d}.json", "w") as f:
-                json.dump(stats, f)
+                json.dump(combined, f)
             # save stats to tensorboard
             for k, v in stats.items():
                 self.writer.add_scalar(f"{stage}/{k}", v, step)
             self.writer.flush()
+        else :
+            print("Warning : stats not being saved")
         self.istraining = training_state
 
     @torch.no_grad()
