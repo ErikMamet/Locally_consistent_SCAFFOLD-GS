@@ -17,5 +17,5 @@ git push
 # Retrieved 2026-01-20, License - CC BY-SA 3.0
 
 ssh -A erikmam@narval.alliancecan.ca << 'ENDSSH'
-  cd /home/erikmam/projects/def-scoulomb/erikmam/Dynamic3DGaussians && git pull && sbatch --account=def-scoulomb ./launch.slurm
+  cd /home/erikmam/projects/def-scoulomb/erikmam/Locally_consistent_SCAFFOLD-GS && git pull && sbatch --account=def-scoulomb ./launch.slurm
 ENDSSH
