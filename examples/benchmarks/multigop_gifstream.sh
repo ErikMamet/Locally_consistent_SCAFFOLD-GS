@@ -7,7 +7,7 @@ RENDER_TRAJ_PATH="ellipse"
 # List of scenes to process
 SCENE_LIST="cut_roasted_beef" #"flame_salmon_1 coffee_martini sear_steak flame_steak cook_spinach cut_roasted_beef"
 # List of entropy lambda values (rate-distortion tradeoff parameter)
-ENTROPY_LAMBDA_LIST=(0.0005)
+ENTROPY_LAMBDA_LIST=(0.001)
 # List of offset_lambda values (incentivise local consistency)
 OFFSET_LAMBDA_LIST=(0 0.1 0.01 0.2) 
 # Data factor for training

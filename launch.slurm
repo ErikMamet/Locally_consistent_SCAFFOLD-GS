@@ -10,22 +10,38 @@
 
 EXP_NAMES=(
   SfM_init
+  SfM_init
+  SfM_init
+  SfM_init
+  SfM_init
+  SfM_init
+)
+
+OFFSET_LAMBDA_LIST=(
+  0.01
+  0.1
+  0.2
+  0.3
+  0.4
+  0.5
 )
 
 SEQUENCES=(
   coffee_martini
 )
 
+ENTROPY_LAMBDA_LIST=(0.0005 0.001 0.002 0.004)
+RATE=1 #carefull, changing rate changes rd tradeoff AND QUANTIZATION STEPS
 IDX=$SLURM_ARRAY_TASK_ID
 EXP_NAME=${EXP_NAMES[$IDX]}
-SEQUENCE=${SEQUENCES[$IDX]}
-
+OFFSET_LAMBDA=${OFFSET_LAMBDA_LIST[$IDX]}
+SEQUENCE=${SEQUENCES[0]}
 
 echo "Running experiment $EXP_NAME on sequence $SEQUENCE"
 echo "job run at $(date +"%T")"
 
 # Load modules BEFORE creating/activating venv
-module load cuda/13.2 python/3.10 opencv/4.12 scipy-stack/2023b
+module load cuda/13.2 python/3.10 opencv/4.12 scipy-stack/2023b ffmpeg
 
 # Create and activate venv
 # Virtual environment in temporary folder
@@ -51,28 +67,63 @@ echo "wheels have been built -- hurray !"
 
 echo "wheels have been installed using pip -- hurray !"
 
-
-cd ../third_party/MLEntropy
-mkdir build
-cd build
-cmake ../cpp -DCMAKE_BUILD_TYPE=Release
-make -j
-
-### Rebuild and install local modules
-#mkdir -p ./dist_SOGS
-#CFLAGS="-w" CXXFLAGS="-w" NVCC_FLAGS="--disable-warnings" python -m build --no-isolation ../SOGS/SOGS/submodules/diff-gaussian-rasterization -w --outdir ./dist_SOGS
-#CFLAGS="-w" CXXFLAGS="-w" NVCC_FLAGS="--disable-warnings" python -m build --no-isolation ../SOGS/SOGS/submodules/simple-knn -w --outdir ./dist_SOGS
-#CFLAGS="-w" CXXFLAGS="-w" NVCC_FLAGS="--disable-warnings" python -m build --no-isolation ../SOGS/SOGS/submodules/PLAS -w --outdir  ./dist_SOGS
+# run once on login node
+#cd ../third_party/MLEntropy
+#mkdir build
+#cd build
+#cmake ../cpp -DCMAKE_BUILD_TYPE=Release
+#make -j
 
 
-### Rendering and testing after sorting 
-python main.py \
-  --exp "$EXP_NAME" \
-  --sequence "$SEQUENCE"\
-  --test
-  #--compress \
-  #--decompress \
-  ### move the logfile into the output folder 
+##########################
+###################           
+#                             RUN 
+#                                         ###################
+#                                   #########################
+python dataset_process/n3d_video_process.py --root_dir /home/erikmam/projects/def-scoulomb/erikmam/Locally_consistent_SCAFFOLD-GS/Neur3D
+echo "DONE PROCESSING DATASET"
+
+
+
+# Data factor for training
+DATA_FACTOR=2
+# Number of frames per GOP (Group of Pictures)
+GOP=60
+# The index of the first frame to process
+FIRST_FRAME=0
+# Total number of frames to process
+TOTAL_FRAME=300
+#INIT_TYPE
+INIT_TYPE="SfM"
+# Loop over each scene in the scene list
+for SCENE in $SCENE_LIST;
+do
+  # Set TYPE based on the scene name
+  if [ "$SCENE" = "coffee_martini" ]; then
+      TYPE=neur3d_2
+  elif [ "$SCENE" = "flame_salmon_1" ]; then
+      TYPE=neur3d_1
+  else
+      TYPE=neur3d_0
+  fi
+  # Loop over each GOP segment
+  for ((GOP_ID=1; GOP_ID < $(((TOTAL_FRAME + GOP - 1)/GOP)) ; GOP_ID++));
+  do
+    # If this is the first GOP, train from scratch
+    CUDA_VISIBLE_DEVICES=0 python examples/simple_trainer_GIFStream.py $TYPE --disable_viewer --data_factor $DATA_FACTOR \
+        --render_traj_path $RENDER_TRAJ_PATH --data_dir $SCENE_DIR/$SCENE/ --result_dir $EXP_NAME \
+        --eval_steps 7000 30000 --save_steps 7000 30000 \
+        --compression_sim --rd_lambda ${ENTROPY_LAMBDA_LIST[RATE]} --entropy_model_opt --rate $RATE \
+        --batch_size 1 --offset_lambda $OFFSET_LAMBDA --GOP_size $(( MAX_GOP < GOP ? MAX_GOP : GOP)) --knn --start_frame $GOP_START_FRAME
+
+    # Run evaluation and rendering after training
+    CUDA_VISIBLE_DEVICES=0 python examples/simple_trainer_GIFStream.py $TYPE --disable_viewer --data_factor $DATA_FACTOR \
+        --render_traj_path $RENDER_TRAJ_PATH --data_dir $SCENE_DIR/$SCENE/ --result_dir $EXP_NAME \
+        --ckpt $EXP_NAME/ckpts/ckpt_29999_rank0.pt \
+        --compression end2end  --rate $RATE \
+        --GOP_size $(( MAX_GOP < GOP ? MAX_GOP : GOP)) --knn --start_frame $GOP_START_FRAME 
+  done
+done
 
 # Get array index
 IDX=${SLURM_ARRAY_TASK_ID}

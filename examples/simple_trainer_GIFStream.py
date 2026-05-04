@@ -97,7 +97,7 @@ class Config:
     # Define the type of entropy model
     entropy_model_type: Literal["conditional_gaussian_model"] = "conditional_gaussian_model"
     # Bit-rate distortion trade-off parameter
-    rd_lambda: float = 5e-4 # default: 1e-2
+    rd_lambda: float = 1e-2 #default ; in repo 5e-4
     # Steps to enable entropy model into training pipeline
     # conditional gaussian model:
     entropy_steps: Dict[str, int] = field(default_factory=lambda: {"anchors": -1, 
