@@ -3,9 +3,17 @@ export PYTHONNOUSERSITE=1
 export PIP_USER=0
 
 deactivate 2>/dev/null
-rm -rf ~/wheel_env
-
 module load python/3.10 cuda/12.9 gcc cmake
+
+pip install --upgrade pip setuptools wheel
+
+# sanity check (IMPORTANT)
+which python
+which pip
+
+export PYTHONNOUSERSITE=1
+export PIP_USER=0
+rm -rf ~/wheel_env
 
 python -m venv ~/wheel_env
 source ~/wheel_env/bin/activate
