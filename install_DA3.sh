@@ -1,4 +1,4 @@
-pip install requirements_wheels_DA3.txt --no-index
+pip install -r requirements_wheels_DA3.txt --no-index
 module load python/3.10  # or your version
 module load gcc cmake    # needed for builds
 
@@ -8,7 +8,7 @@ source ~/wheel_env/bin/activate
 # pip install -e . 
 pip install --upgrade pip setuptools wheel build
 
-export WHEELHOUSE=$SLURM_TMPDIR/wheelhouse
+export WHEELHOUSE=./tmp2beerrased/wheelhouse
 mkdir -p $WHEELHOUSE
 pip wheel evo -w $WHEELHOUSE
 
