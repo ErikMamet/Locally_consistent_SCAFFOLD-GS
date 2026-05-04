@@ -5,8 +5,8 @@
 #SBATCH --output=nerf-%A_%a.out
 #SBATCH --cpus-per-task=4
 #SBATCH --mem=40G
-#SBATCH --time=00:35:00
-#SBATCH --gpus=a100
+#SBATCH --time=00:20:00
+#SBATCH --gpus=a100_1g.5gb 
 
 EXP_NAMES=(
   SfM_init
@@ -41,7 +41,7 @@ echo "Running experiment $EXP_NAME on sequence $SEQUENCE"
 echo "job run at $(date +"%T")"
 
 # Load modules BEFORE creating/activating venv
-module load cuda/13.2 python/3.10 opencv/4.12 scipy-stack/2023b ffmpeg
+module load cuda/12.9 python/3.10 opencv/4.12 scipy-stack/2023b ffmpeg
 
 # Create and activate venv
 # Virtual environment in temporary folder
