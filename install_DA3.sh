@@ -1,15 +1,29 @@
 # Load modules BEFORE creating/activating venv
-module load cuda/12.9 python/3.10 opencv/4.12 scipy-stack/2023b ffmpeg
-module load gcc cmake    # needed for builds
+export PYTHONNOUSERSITE=1
+export PIP_USER=0
 
+deactivate 2>/dev/null
+rm -rf ~/wheel_env
+
+module load python/3.10 cuda/12.9 gcc cmake
 
 python -m venv ~/wheel_env
 source ~/wheel_env/bin/activate
 
-pip install -r ./requirements_wheels_DA3.txt --no-index
+module load cuda/12.9 python/3.10 opencv/4.12 scipy-stack/2023b ffmpeg
+module load gcc cmake    # needed for builds
+which python
+python --version
+python -c "import site; print(site.getsitepackages())"
 
-# pip install -e . 
-pip install --upgrade pip setuptools wheel build
+pip install --upgrade pip setuptools wheel
+
+pip install -r requirements_wheels_DA3.txt \
+  --no-index \
+  --find-links=/cvmfs/soft.computecanada.ca/custom/python/wheelhouse/generic \
+  --find-links=/cvmfs/soft.computecanada.ca/custom/python/wheelhouse/gentoo2023/generic \
+  --find-links=/cvmfs/soft.computecanada.ca/custom/python/wheelhouse/gentoo2023/x86-64-v3
+
 
 
 export WHEELHOUSE=./tmpdir/wheelhouse

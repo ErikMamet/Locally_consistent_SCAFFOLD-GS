@@ -1,24 +1,24 @@
 
 #we suppose torch>2 and torchvision are already installed
-xformers==0.035
-ninja==1.11.1
-jaxtyping==0.3.9
-rich==15.0.0
-typing_extensions==4.1.1
-trimesh==4.7.1
-einops==0.8.2 
-huggingface_hub==1.11.0
-imageio==2.37.2
-xformer==0.0.35
-fastapi==0.136.1
-vicorn==0.46.0
-requests==2.33.1
-typer==0.24.2
-omegaconf==2.3.0
-e3nn==0.3.0
-moviepy==1.0.3
-plyfile==1.0.3
-safetensors==0.7.0
-typer==0.24.2
-uvicorn==0.46.0
+xformers==0.0.35+torch210.computecanada --no-index
+ninja==1.11.1+computecanada
+jaxtyping==0.3.9+computecanada
+rich==15.0.0+computecanada
+typing_extensions==4.1.1+computecanada
+trimesh==4.7.1+computecanada
+einops==0.8.2+computecanada
+huggingface_hub==1.11.0+computecanada
+imageio==2.37.2+computecanada
+xformer==0.0.35+computecanada
+fastapi==0.136.1+computecanada
+vicorn==0.46.0+computecanada
+requests==2.33.1+computecanada
+typer==0.24.2+computecanada
+omegaconf==2.3.0+computecanada
+e3nn==0.3.0+computecanada
+moviepy==1.0.3+computecanada
+plyfile==1.0.3+computecanada
+safetensors==0.7.0+computecanada
+typer==0.24.2+computecanada
+uvicorn==0.46.0+computecanada
 #open3D is missing, if anything requires it, it needs to be changed
