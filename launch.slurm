@@ -6,7 +6,7 @@
 #SBATCH --cpus-per-task=4
 #SBATCH --mem=40G
 #SBATCH --time=00:20:00
-#SBATCH --gpus=a100_1g.5gb 
+#SBATCH --gpus=a100_4g.20gb 
 
 EXP_NAMES=(
   SfM_init
