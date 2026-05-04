@@ -50,6 +50,7 @@ virtualenv -q --no-download $VENV_DIR || { echo "Failed to create venv"; exit 1;
 source $VENV_DIR/bin/activate
 # Install build & deps
 cd examples
+pip install --no-index torch torchvision torchtext torchaudio
 pip install --no-index --find-links=$SLURM_TMPDIR/wheelhouse -r requirements_server.txt
 
 # only run once
