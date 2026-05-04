@@ -22,3 +22,4 @@ safetensors
 typer                     
 uvicorn        
 #open3D is missing, if anything requires it, it needs to be changed
+
