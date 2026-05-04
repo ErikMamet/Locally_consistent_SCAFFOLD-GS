@@ -8,7 +8,7 @@
 COMMIT_MESSAGE=${1:-"Auto-commit"}
 
 # Commit changes
-git add .
+git add -a
 git commit -m "$COMMIT_MESSAGE"
 git push
 
