@@ -1,0 +1,12 @@
+viser
+nerfview==0.0.2
+imageio[ffmpeg]
+tqdm
+torchmetrics[image]<1.5
+tyro>=0.8.8
+Pillow
+tensorboard
+tensorly
+pyyaml
+torch_scatter
+natsort
