@@ -1,0 +1,24 @@
+
+#we suppose torch>2 and torchvision are already installed
+xformers==0.035
+ninja==1.11.1
+jaxtyping==0.3.9
+rich==15.0.0
+typing_extensions==4.1.1
+trimesh==4.7.1
+einops==0.8.2 
+huggingface_hub==1.11.0
+imageio==2.37.2
+xformer==0.0.35
+fastapi==0.136.1
+vicorn==0.46.0
+requests==2.33.1
+typer==0.24.2
+omegaconf==2.3.0
+e3nn==0.3.0
+moviepy==1.0.3
+plyfile==1.0.3
+safetensors==0.7.0
+typer==0.24.2
+uvicorn==0.46.0
+#open3D is missing, if anything requires it, it needs to be changed

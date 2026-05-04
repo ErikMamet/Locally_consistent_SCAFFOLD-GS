@@ -52,7 +52,7 @@ source $VENV_DIR/bin/activate
 cd examples
 pip install --no-index torch torchvision torchtext torchaudio
 pip install --no-index --find-links=$SLURM_TMPDIR/wheelhouse -r requirements_server.txt
-
+cd ..
 # only run once
 export PIP_NO_INDEX=1
 export PIP_FIND_LINKS=$HOME/wheelhouse
@@ -81,6 +81,7 @@ echo "wheels have been installed using pip -- hurray !"
 #                             RUN 
 #                                         ###################
 #                                   #########################
+
 python dataset_process/n3d_video_process.py --root_dir /home/erikmam/projects/def-scoulomb/erikmam/Locally_consistent_SCAFFOLD-GS/Neur3D
 echo "DONE PROCESSING DATASET"
 
