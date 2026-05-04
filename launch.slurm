@@ -50,23 +50,32 @@ virtualenv -q --no-download $VENV_DIR || { echo "Failed to create venv"; exit 1;
 source $VENV_DIR/bin/activate
 # Install build & deps
 cd examples
-pip install --no-index torch torchvision torchtext torchaudio
+pip install --no-index torch==2.11.0 torchvision==0.26.0 torchtext==0.6.0 torchaudio==2.11.0
+python -c "import torch; print('Torch version:', torch.__version__)"
 pip install --no-index --find-links=$SLURM_TMPDIR/wheelhouse -r requirements_server.txt
 cd ..
+
 # only run once
 export PIP_NO_INDEX=1
 export PIP_FIND_LINKS=$HOME/wheelhouse
 export PIP_DISABLE_PIP_VERSION_CHECK=1
 pip wheel ~/src_pkgs/pycolmap -w ~/wheelhouse --no-build-isolation --no-deps
+#check what version of pytorch is intalled and make sure it is the same as before 
+python -c "import torch; print('Torch:', torch.__version__, '| CUDA:', torch.version.cuda, '| Available:', torch.cuda.is_available())"
+pip list | grep torch
 pip wheel ~/src_pkgs/fused-ssim -w ~/wheelhouse --no-build-isolation --no-deps
 pip wheel ~/src_pkgs/PLAS -w ~/wheelhouse --no-build-isolation --no-deps
 
 #install pre-built wheels 
 cp -r ~/wheelhouse $SLURM_TMPDIR/
 pip install -q --no-index --upgrade pip
+pip install --no-index --find-links=$SLURM_TMPDIR/wheelhouse pycolmap fused-ssim PLAS
+
 echo "wheels have been built -- hurray !"
 
 echo "wheels have been installed using pip -- hurray !"
+
+
 
 # run once on login node
 #cd ../third_party/MLEntropy

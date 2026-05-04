@@ -15,7 +15,8 @@ pip wheel evo -w $WHEELHOUSE
 module load cmake boost eigen
 module load colmap
 
-pip install --no-build-isolation git+https://github.com/nerfstudio-project/gsplat.git@0b4dddf04cb687367602c01196913cde6a743d70 # for gaussian head
+pip wheel --no-build-isolation git+https://github.com/nerfstudio-project/gsplat.git@0b4dddf04cb687367602c01196913cde6a743d70 -w $WHEELHOUSE
+#is this wheel being installed ?
 
-pip install -e ".[app]" # Gradio, python>=3.10
-pip install -e ".[all]" # ALL
+pip install --no-index --find-links=$WHEELHOUSE evo gsplat
+
