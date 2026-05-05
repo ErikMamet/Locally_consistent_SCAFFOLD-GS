@@ -1,8 +1,8 @@
 viser
 nerfview==0.0.2
-imageio[ffmpeg]
+imageio
 tqdm
-torchmetrics[image]<1.5
+torchmetrics<1.5
 tyro>=0.8.8
 Pillow
 tensorboard

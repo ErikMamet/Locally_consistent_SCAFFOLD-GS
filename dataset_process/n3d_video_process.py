@@ -48,11 +48,11 @@ def convertdynerftocolmapdb(path, offset=0):
     originnumpy = os.path.join(path, "poses_bounds.npy")
     mp4_path = os.path.join(path,"mp4")
     projectfolder = os.path.join(path, "colmap_" + str(offset))
-    #sparsefolder = os.path.join(projectfolder, "sparse/0")
+    sparsefolder = os.path.join(projectfolder, "sparse/0")
     manualfolder = os.path.join(projectfolder, "manual")
 
-    # if not os.path.exists(sparsefolder):
-    #     os.makedirs(sparsefolder)
+    if not os.path.exists(sparsefolder):
+        os.makedirs(sparsefolder)
     if not os.path.exists(manualfolder):
         os.makedirs(manualfolder)
 
@@ -70,6 +70,7 @@ def convertdynerftocolmapdb(path, offset=0):
 
 
     with open(originnumpy, 'rb') as numpy_file:
+        print("--> AAAAAAAAAAa 1")
         poses_bounds = np.load(numpy_file)
         poses = poses_bounds[:, :15].reshape(-1, 3, 5)
 
@@ -77,8 +78,10 @@ def convertdynerftocolmapdb(path, offset=0):
         w2c_matriclist = posetow2c_matrcs(llffposes)
         assert (type(w2c_matriclist) == list)
 
+        print("--> AAAAAAAAAAa 2")
 
         for i in range(len(poses)):
+            print("--> BBBBBBBBBBB 1")
             cameraname = f"cam{i:02d}" #"cam" + str(i).zfill(2)
             m = w2c_matriclist[i]
             colmapR = m[:3, :3]
@@ -110,23 +113,36 @@ def convertdynerftocolmapdb(path, offset=0):
             camera_id = db.add_camera(1, width, height, params)
             cameraline = str(i+1) + " " + "PINHOLE " + str(width) +  " " + str(height) + " " + str(focolength) + " " + str(focolength) + " " + str(W//2) + " " + str(H//2) + "\n"
             cameratxtlist.append(cameraline)
+            print("--> BBBBBBBBBBB 2")
             
             image_id = db.add_image(pngname, camera_id,  prior_q=np.array((colmapQ[0], colmapQ[1], colmapQ[2], colmapQ[3])), prior_t=np.array((T[0], T[1], T[2])), image_id=i+1)
             db.commit()
+            print("--> BBBBBBBBBBB 3")
+        
+        cursor = db.execute("SELECT COUNT(*) FROM images")
+        num_images = cursor.fetchone()[0]
+
+        if num_images == 0:
+            print("Database has no images (empty)")
+        else:
+            print(f"Database has {num_images} images")
         db.close()
 
 
     with open(savetxt, "w") as f:
+        print("--> CCCCCCCCCCCC 1")
         for line in imagetxtlist :
             f.write(line)
     with open(savecamera, "w") as f:
+        print("--> CCCCCCCCCCCC 2")
         for line in cameratxtlist :
             f.write(line)
     with open(savepoints, "w") as f:
+        print("--> CCCCCCCCCCCC 3")
         pass 
 
 def getcolmapsinglen3d(folder, offset):
-    
+    print("--> entering get colmapsinglen3d", flush=True)
     folder = os.path.join(folder, "colmap_" + str(offset))
     assert os.path.exists(folder)
 
@@ -140,16 +156,22 @@ def getcolmapsinglen3d(folder, offset):
     manualinputfolder = os.path.join(folder, "manual")
     if not os.path.exists(distortedmodel):
         os.makedirs(distortedmodel)
-
-    featureextract = "colmap feature_extractor --database_path " + dbfile+ " --image_path " + inputimagefolder + " --SiftExtraction.max_image_size 4096 --SiftExtraction.max_num_features 106384 --SiftExtraction.estimate_affine_shape 1 --SiftExtraction.domain_size_pooling 1 --ImageReader.camera_model PINHOLE"
+    print("--> Before feature extractor", flush=True)
+    featureextract = "colmap feature_extractor --database_path " + dbfile+ " --image_path " + inputimagefolder + " --SiftExtraction.max_num_features 106384 --SiftExtraction.estimate_affine_shape 1 --SiftExtraction.domain_size_pooling 1 --ImageReader.camera_model PINHOLE"
+    print("--> After feature extractor", flush=True)
 
     exit_code = os.system(featureextract)
     if exit_code != 0:
+        print("--> WE ARE EXITING 1", flush=True)
         exit(exit_code)
 
-    featurematcher = "colmap exhaustive_matcher --database_path " + dbfile
+    print("--> Before exhaustive_matcher", flush=True)
+    featurematcher = "colmap exhaustive_matcher --database_path " + dbfile + " --SiftMatching.use_gpu 0"
+    print("--> After exhaustive_matcher", flush=True)
+    
     exit_code = os.system(featurematcher)
     if exit_code != 0:
+        print("--> WE ARE EXITING 2", flush=True)
         exit(exit_code)
 
    # threshold is from   https://github.com/google-research/multinerf/blob/5b4d4f64608ec8077222c52fdf814d40acc10bc1/scripts/local_colmap_and_resize.sh#L62
@@ -158,7 +180,9 @@ def getcolmapsinglen3d(folder, offset):
    
     exit_code = os.system(triandmap)
     if exit_code != 0:
-       exit(exit_code)
+        print("--> WE ARE EXITING 3", flush=True)
+        exit(exit_code)
+
     print(triandmap)
 
 
@@ -166,12 +190,14 @@ def getcolmapsinglen3d(folder, offset):
     + " --output_type COLMAP" 
     exit_code = os.system(img_undist_cmd)
     if exit_code != 0:
+        print("--> WE ARE EXITING 4", flush=True)
         exit(exit_code)
     print(img_undist_cmd)
 
     removeinput = "rm -r " + inputimagefolder
     exit_code = os.system(removeinput)
     if exit_code != 0:
+        print("--> WE ARE EXITING 5", flush=True)
         exit(exit_code)
 
     files = os.listdir(folder + "/sparse")
@@ -179,6 +205,7 @@ def getcolmapsinglen3d(folder, offset):
     for file in files:
         if file == '0':
             continue
+        print("--> We're HERE ", flush=True)
         source_file = os.path.join(folder, "sparse", file)
         destination_file = os.path.join(folder, "sparse", "0", file)
         shutil.move(source_file, destination_file)
@@ -186,49 +213,62 @@ def getcolmapsinglen3d(folder, offset):
 if __name__ == "__main__" :
     parser = ArgumentParser(description="dataset information")
     parser.add_argument("--root_dir", type=str, default = None)
-    parser.add_argument("--extract_frames", type=bool, action='store_true')
+    parser.add_argument("--extract_frames", action='store_true')
     parser.add_argument("--frame_rate", type=int, default = 30)
     parser.add_argument("--startframe", default=0, type=int)
     parser.add_argument("--endframe", default=300, type=int)
     parser.add_argument("--GOP", default=60, type=int)
     args = parser.parse_args(sys.argv[1:])
 
-    for folder_name in os.listdir(args.root_dir):
-        source_path = os.path.join(args.root_dir, folder_name)
-        output_path = os.path.join(args.root_dir, folder_name, "png")
-        if not os.path.exists(output_path):
-            os.mkdir(output_path)
-        
-        # extract frams from videos
-        if os.path.isdir(source_path) and args.extract_frames:
-            mp4_files = sorted([name for name in os.listdir(source_path) if name.endswith(".mp4")])
-            for idx,file_name in enumerate(mp4_files):
-                video_path = os.path.join(source_path, file_name)
-                output_folder = os.path.join(output_path, f"cam{idx:02d}")
-                if not os.path.exists(output_path):
-                        os.mkdir(output_path)
-                
-                if not os.path.exists(output_folder):
-                    os.mkdir(output_folder)
-                
-                cmd = f"ffmpeg -i {video_path} -vf fps={args.frame_rate} {output_folder}/%05d.png"
-                subprocess.call(cmd, shell=True)
-        
-        # conduct colmap for GOPs
-        camera_names = [name for name in os.listdir(output_path) if os.path.isdir(os.path.join(output_path, name))]
-        camera_names = sorted(camera_names)
-        frame_list = [args.startframe + x * args.GOP for x in range((args.endframe-args.startframe + args.GOP-1)//args.GOP)]
-        for frame in frame_list:
-            colmap_path = os.path.join(args.root_dir, folder_name, f"colmap_{frame}")
-            first_frame_path = os.path.join(args.root_dir, folder_name, f"colmap_{frame}", "input")
-            if not os.path.exists(colmap_path):
-                os.mkdir(colmap_path)
-            if not os.path.exists(first_frame_path):
-                os.mkdir(first_frame_path)
-            for ind,cam in enumerate(camera_names):
-                image_path = os.path.join(output_path, cam, f"{(frame+1):05d}.png")
-                save_path = os.path.join(first_frame_path, f"cam{ind:02d}.png")
-                shutil.copy(image_path, save_path)
 
-            convertdynerftocolmapdb(os.path.join(args.root_dir, folder_name),frame)
-            getcolmapsinglen3d(os.path.join(args.root_dir, folder_name),frame)
+    print("STARTING ------- STARTING ")
+    print(os.listdir(args.root_dir))
+    try:
+        for folder_name in os.listdir(args.root_dir):
+            source_path = os.path.join(args.root_dir, folder_name)
+            output_path = os.path.join(args.root_dir, folder_name, "png")
+            print("output path :" , output_path)
+            if not os.path.exists(output_path):
+                print("creating output_path for pngs")
+                os.mkdir(output_path)
+            
+            # extract frams from videos
+            if os.path.isdir(source_path) and args.extract_frames:
+                mp4_files = sorted([name for name in os.listdir(source_path) if name.endswith(".mp4")])
+                for idx,file_name in enumerate(mp4_files):
+                    video_path = os.path.join(source_path, file_name)
+                    output_folder = os.path.join(output_path, f"cam{idx:02d}")
+                    print("output folder", output_folder)
+                    if not os.path.exists(output_path):
+                            print("creating output_path for vids")
+                            os.mkdir(output_path)
+                    
+                    if not os.path.exists(output_folder):
+                        os.mkdir(output_folder)
+                    
+                    cmd = f"ffmpeg -i {video_path} -vf fps={args.frame_rate} {output_folder}/%05d.png"
+                    subprocess.call(cmd, shell=True)
+            
+            # conduct colmap for GOPs
+            camera_names = [name for name in os.listdir(output_path) if os.path.isdir(os.path.join(output_path, name))]
+            camera_names = sorted(camera_names)
+            frame_list = [args.startframe + x * args.GOP for x in range((args.endframe-args.startframe + args.GOP-1)//args.GOP)]
+            for frame in frame_list:
+                print("frames", frame)
+                colmap_path = os.path.join(args.root_dir, folder_name, f"colmap_{frame}")
+                first_frame_path = os.path.join(args.root_dir, folder_name, f"colmap_{frame}", "input")
+                if not os.path.exists(colmap_path):
+                    os.mkdir(colmap_path)
+                if not os.path.exists(first_frame_path):
+                    os.mkdir(first_frame_path)
+                for ind,cam in enumerate(camera_names):
+                    print("we're in enumerate(camera_names)")
+                    image_path = os.path.join(output_path, cam, f"{(frame+1):05d}.png")
+                    save_path = os.path.join(first_frame_path, f"cam{ind:02d}.png")
+                    shutil.copy(image_path, save_path)
+
+                convertdynerftocolmapdb(os.path.join(args.root_dir, folder_name),frame)
+                getcolmapsinglen3d(os.path.join(args.root_dir, folder_name),frame)
+    except Exception as e:
+        print(e)
+
