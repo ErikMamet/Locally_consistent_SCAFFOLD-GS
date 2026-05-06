@@ -80,14 +80,79 @@ def _poses_from_ext(ext_ref, ext_est):
     pose_est = affine_inverse_np(ext_est)
     return pose_ref, pose_est
 
+import numpy as np
+
+def _umeyama_alignment(X, Y, with_scale=True):
+    """
+    Compute Umeyama alignment that maps X -> Y
+    X, Y: (N, 3) point sets
+    Returns: R, t, s
+    """
+    assert X.shape == Y.shape
+
+    n = X.shape[0]
+    mean_X = X.mean(axis=0)
+    mean_Y = Y.mean(axis=0)
+
+    Xc = X - mean_X
+    Yc = Y - mean_Y
+
+    cov = (Yc.T @ Xc) / n
+
+    U, D, Vt = np.linalg.svd(cov)
+
+    S = np.eye(3)
+    if np.linalg.det(U) * np.linalg.det(Vt) < 0:
+        S[-1, -1] = -1
+
+    R = U @ S @ Vt
+
+    if with_scale:
+        var_X = np.sum(Xc**2) / n
+        s = np.trace(np.diag(D) @ S) / var_X
+    else:
+        s = 1.0
+
+    t = mean_Y - s * R @ mean_X
+
+    return R, t, s
+
 
 def _umeyama_sim3_from_paths(pose_ref, pose_est):
-    return None
-    path_ref = PosePath3D(poses_se3=pose_ref.copy())
-    path_est = PosePath3D(poses_se3=pose_est.copy())
-    r, t, s = path_est.align(path_ref, correct_scale=True)
-    pose_est_aligned = np.stack(path_est.poses_se3)
-    return r, t, s, pose_est_aligned
+    """
+    pose_ref, pose_est: arrays of shape (N, 4, 4)
+    Returns: R, t, s, aligned poses
+    """
+
+    pose_ref = np.asarray(pose_ref)
+    pose_est = np.asarray(pose_est)
+
+    # Extract translations
+    t_ref = pose_ref[:, :3, 3]
+    t_est = pose_est[:, :3, 3]
+
+    # Compute alignment (est -> ref)
+    R, t, s = _umeyama_alignment(t_est, t_ref, with_scale=True)
+
+    # Apply transformation to poses
+    pose_est_aligned = []
+
+    for P in pose_est:
+        R_est = P[:3, :3]
+        t_est_i = P[:3, 3]
+
+        R_new = R @ R_est
+        t_new = s * R @ t_est_i + t
+
+        P_new = np.eye(4)
+        P_new[:3, :3] = R_new
+        P_new[:3, 3] = t_new
+
+        pose_est_aligned.append(P_new)
+
+    pose_est_aligned = np.stack(pose_est_aligned)
+
+    return R, t, s, pose_est_aligned
 
 
 def _apply_sim3_to_poses(poses, r, t, s):

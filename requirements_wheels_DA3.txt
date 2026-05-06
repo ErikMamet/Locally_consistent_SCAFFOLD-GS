@@ -1,5 +1,7 @@
 
 #we suppose torch>2 and torchvision are already installed
+hatchling
+hatch_vcs
 xformers
 ninja
 jaxtyping
@@ -8,18 +10,17 @@ typing_extensions
 trimesh                     
 einops                     
 huggingface_hub                     
-imageio                     
-xformer                     
+imageio                      
 fastapi                     
-vicorn                     
 requests                     
-typer                     
+typer          
+pillow           
 omegaconf                     
-e3nn                     
+e3nn          
+triton           
 moviepy                     
 plyfile                     
 safetensors                     
-typer                     
 uvicorn        
 #open3D is missing, if anything requires it, it needs to be changed
 

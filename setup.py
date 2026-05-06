@@ -17,6 +17,7 @@ WITH_SYMBOLS = os.getenv("WITH_SYMBOLS", "0") == "1"
 LINE_INFO = os.getenv("LINE_INFO", "0") == "1"
 MAX_JOBS = os.getenv("MAX_JOBS")
 need_to_unset_max_jobs = False
+
 if not MAX_JOBS:
     need_to_unset_max_jobs = True
     os.environ["MAX_JOBS"] = "10"

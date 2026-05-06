@@ -28,7 +28,7 @@ from torch.nn.parallel import DistributedDataParallel as DDP
 from torch.utils.tensorboard import SummaryWriter
 from torchmetrics.image import PeakSignalNoiseRatio, StructuralSimilarityIndexMeasure
 from fused_ssim import fused_ssim
-from torchmetrics.image.lpip import LearnedPerceptualImagePatchSimilarity
+#from torchmetrics.image.lpip import LearnedPerceptualImagePatchSimilarity
 from typing_extensions import Literal, assert_never
 from gsplat import strategy
 from gsplat.compression.entropy_coding_compression import EntropyCodingCompression
@@ -304,7 +304,7 @@ class Config:
     # Test view id
     test_view_id: Optional[List[int]] = None
 
-    lpips_net: Literal["vgg", "alex"] = "alex"
+    #lpips_net: Literal["vgg", "alex"] = "alex"
 
     def adjust_steps(self, factor: float):
         self.eval_steps = [int(i * factor) for i in self.eval_steps]
@@ -700,17 +700,17 @@ class Runner:
         self.ssim = StructuralSimilarityIndexMeasure(data_range=1.0).to(self.device)
         self.psnr = PeakSignalNoiseRatio(data_range=1.0).to(self.device)
 
-        if cfg.lpips_net == "alex":
-            self.lpips = LearnedPerceptualImagePatchSimilarity(
-                net_type="alex", normalize=True
-            ).to(self.device)
-        elif cfg.lpips_net == "vgg":
-            # The 3DGS official repo uses lpips vgg, which is equivalent with the following:
-            self.lpips = LearnedPerceptualImagePatchSimilarity(
-                net_type="vgg", normalize=False
-            ).to(self.device)
-        else:
-            raise ValueError(f"Unknown LPIPS network: {cfg.lpips_net}")
+        #if cfg.lpips_net == "alex":
+        #    self.lpips = LearnedPerceptualImagePatchSimilarity(
+        #        net_type="alex", normalize=True
+        #    ).to(self.device)
+        #elif cfg.lpips_net == "vgg":
+        #    # The 3DGS official repo uses lpips vgg, which is equivalent with the following:
+        #    self.lpips = LearnedPerceptualImagePatchSimilarity(
+        #        net_type="vgg", normalize=False
+        #    ).to(self.device)
+        #else:
+        #    raise ValueError(f"Unknown LPIPS network: {cfg.lpips_net}")
 
         # Viewer
         if not self.cfg.disable_viewer:
@@ -1190,7 +1190,7 @@ class Runner:
                     self.run_param_distribution_vis(self.comp_sim_splats, 
                                                     f"{cfg.result_dir}/visualization/comp_sim_step{step}")
                     self.eval(step)
-                    self.render_traj(step)
+                    #self.render_traj(step)
 
                 # run compression
                 # if cfg.compression is not None and step in [i - 1 for i in cfg.eval_steps]:
@@ -1261,7 +1261,7 @@ class Runner:
                 colors_p = colors.permute(0, 3, 1, 2)  # [1, 3, H, W]
                 metrics["psnr"].append(self.psnr(colors_p, pixels_p))
                 metrics["ssim"].append(self.ssim(colors_p, pixels_p))
-                metrics["lpips"].append(self.lpips(colors_p, pixels_p))
+                #metrics["lpips"].append(self.lpips(colors_p, pixels_p))
                 if cfg.use_bilateral_grid:
                     cc_colors = color_correct(colors, pixels)
                     cc_colors_p = cc_colors.permute(0, 3, 1, 2)  # [1, 3, H, W]
@@ -1278,7 +1278,7 @@ class Runner:
                 }
             )
             print(
-                f"PSNR: {stats['psnr']:.3f}, SSIM: {stats['ssim']:.4f}, LPIPS: {stats['lpips']:.3f} "
+                f"PSNR: {stats['psnr']:.3f}, SSIM: {stats['ssim']:.4f}" #, LPIPS: {stats['lpips']:.3f} "
                 f"Time: {stats['ellipse_time']:.3f}s/image "
                 f"Number of GS: {stats['num_GS']}"
             )
@@ -1290,80 +1290,80 @@ class Runner:
                 self.writer.add_scalar(f"{stage}/{k}", v, step)
             self.writer.flush()
 
-    @torch.no_grad()
-    def render_traj(self, step: int, stage: str = "val"):
-        """Entry for trajectory rendering."""
-        print("Running trajectory rendering...")
-        cfg = self.cfg
-        device = self.device
-
-        num_imgs = len(self.parser.camtoworlds)
-
-        camtoworlds_all = self.parser.camtoworlds[: num_imgs//2]
-        if cfg.render_traj_path == "interp":
-            camtoworlds_all = generate_interpolated_path(
-                camtoworlds_all, 6 #1
-            )  # [N, 3, 4]
-        elif cfg.render_traj_path == "ellipse":
-            height = camtoworlds_all[:, 2, 3].mean()
-            camtoworlds_all = generate_ellipse_path_z(
-                camtoworlds_all, height=height
-            )  # [N, 3, 4]
-        elif cfg.render_traj_path == "spiral":
-            camtoworlds_all = generate_spiral_path(
-                camtoworlds_all,
-                bounds=self.parser.bounds * self.scene_scale,
-                spiral_scale_r=self.parser.extconf["spiral_radius_scale"],
-            )
-        else:
-            raise ValueError(
-                f"Render trajectory type not supported: {cfg.render_traj_path}"
-            )
-
-        camtoworlds_all = np.concatenate(
-            [
-                camtoworlds_all,
-                np.repeat(
-                    np.array([[[0.0, 0.0, 0.0, 1.0]]]), len(camtoworlds_all), axis=0
-                ),
-            ],
-            axis=1,
-        )  # [N, 4, 4]
-
-        camtoworlds_all = torch.from_numpy(camtoworlds_all).float().to(device)
-        K = torch.from_numpy(list(self.parser.Ks_dict.values())[0]).float().to(device)
-        width, height = list(self.parser.imsize_dict.values())[0]
-
-        # save to video
-        video_dir = f"{cfg.result_dir}/videos"
-        os.makedirs(video_dir, exist_ok=True)
-        writer = imageio.get_writer(f"{video_dir}/{stage}_traj_{step}.mp4", fps=30)
-        for i in tqdm.trange(len(camtoworlds_all), desc="Rendering trajectory"):
-            camtoworlds = camtoworlds_all[i : i + 1]
-            Ks = K[None]
-
-            renders, _, _ = self.rasterize_splats(
-                camtoworlds=camtoworlds,
-                Ks=Ks,
-                width=width,
-                height=height,
-                sh_degree=cfg.sh_degree,
-                near_plane=cfg.near_plane,
-                far_plane=cfg.far_plane,
-                render_mode="RGB+ED",
-            )  # [1, H, W, 4]
-            colors = torch.clamp(renders[..., 0:3], 0.0, 1.0)  # [1, H, W, 3]
-            depths = renders[..., 3:4]  # [1, H, W, 1]
-            depths = (depths - depths.min()) / (depths.max() - depths.min())
-            canvas_list = [colors, depths.repeat(1, 1, 1, 3)]
-
-            # write images
-            # canvas = torch.cat(canvas_list, dim=2).squeeze(0).cpu().numpy()
-            canvas = canvas_list[0].squeeze(0).cpu().numpy()
-            canvas = (canvas * 255).astype(np.uint8)
-            writer.append_data(canvas)
-        writer.close()
-        print(f"Video saved to {video_dir}/{stage}_traj_{step}.mp4")
+    #    @torch.no_grad()
+    #    def render_traj(self, step: int, stage: str = "val"):
+    #        """Entry for trajectory rendering."""
+    #        print("Running trajectory rendering...")
+    #        cfg = self.cfg
+    #        device = self.device
+    #
+    #        num_imgs = len(self.parser.camtoworlds)
+    #
+    #        camtoworlds_all = self.parser.camtoworlds[: num_imgs//2]
+    #        if cfg.render_traj_path == "interp":
+    #            camtoworlds_all = generate_interpolated_path(
+    #                camtoworlds_all, 6 #1
+    #            )  # [N, 3, 4]
+    #        elif cfg.render_traj_path == "ellipse":
+    #            height = camtoworlds_all[:, 2, 3].mean()
+    #            camtoworlds_all = generate_ellipse_path_z(
+    #                camtoworlds_all, height=height
+    #            )  # [N, 3, 4]
+    #        elif cfg.render_traj_path == "spiral":
+    #            camtoworlds_all = generate_spiral_path(
+    #                camtoworlds_all,
+    #                bounds=self.parser.bounds * self.scene_scale,
+    #                spiral_scale_r=self.parser.extconf["spiral_radius_scale"],
+    #            )
+    #        else:
+    #            raise ValueError(
+    #                f"Render trajectory type not supported: {cfg.render_traj_path}"
+    #            )
+    #
+    #        camtoworlds_all = np.concatenate(
+    #            [
+    #                camtoworlds_all,
+    #                np.repeat(
+    #                    np.array([[[0.0, 0.0, 0.0, 1.0]]]), len(camtoworlds_all), axis=0
+    #                ),
+    #            ],
+    #            axis=1,
+    #        )  # [N, 4, 4]
+    #
+    #        camtoworlds_all = torch.from_numpy(camtoworlds_all).float().to(device)
+    #        K = torch.from_numpy(list(self.parser.Ks_dict.values())[0]).float().to(device)
+    #        width, height = list(self.parser.imsize_dict.values())[0]
+    #
+    #        # save to video
+    #        video_dir = f"{cfg.result_dir}/videos"
+    #        os.makedirs(video_dir, exist_ok=True)
+    #        writer = imageio.get_writer(f"{video_dir}/{stage}_traj_{step}.mp4", fps=30)
+    #        for i in tqdm.trange(len(camtoworlds_all), desc="Rendering trajectory"):
+    #            camtoworlds = camtoworlds_all[i : i + 1]
+    #            Ks = K[None]
+    #
+    #            renders, _, _ = self.rasterize_splats(
+    #                camtoworlds=camtoworlds,
+    #                Ks=Ks,
+    #                width=width,
+    #                height=height,
+    #                sh_degree=cfg.sh_degree,
+    #                near_plane=cfg.near_plane,
+    #                far_plane=cfg.far_plane,
+    #                render_mode="RGB+ED",
+    #            )  # [1, H, W, 4]
+    #            colors = torch.clamp(renders[..., 0:3], 0.0, 1.0)  # [1, H, W, 3]
+    #            depths = renders[..., 3:4]  # [1, H, W, 1]
+    #            depths = (depths - depths.min()) / (depths.max() - depths.min())
+    #            canvas_list = [colors, depths.repeat(1, 1, 1, 3)]
+    #
+    #            # write images
+    #            # canvas = torch.cat(canvas_list, dim=2).squeeze(0).cpu().numpy()
+    #            canvas = canvas_list[0].squeeze(0).cpu().numpy()
+    #            canvas = (canvas * 255).astype(np.uint8)
+    #            writer.append_data(canvas)
+    #        writer.close()
+    #        print(f"Video saved to {video_dir}/{stage}_traj_{step}.mp4")
 
     @torch.no_grad()
     def run_compression(self, step: int):
@@ -1396,7 +1396,7 @@ class Runner:
         for k in splats_c.keys():
             self.splats[k].data = splats_c[k].to(self.device)
         self.eval(step=step, stage="compress")
-        self.render_traj(step=step, stage="compress")
+        #self.render_traj(step=step, stage="compress")
 
     @torch.no_grad()
     def run_param_distribution_vis(self, param_dict: Dict[str, Tensor], save_dir: str):
@@ -1526,7 +1526,7 @@ def main(local_rank: int, world_rank, world_size: int, cfg: Config):
         step = ckpts[0]["step"]
         runner.save_params_into_ply_file()
         runner.eval(step=step)
-        runner.render_traj(step=step)
+        #runner.render_traj(step=step)
         if cfg.compression is not None:
             if cfg.compression == "entropy_coding":
                 runner.load_entropy_model_from_ckpt(ckpts[0], cfg.entropy_model_type)

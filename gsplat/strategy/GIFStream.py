@@ -1,6 +1,5 @@
 from dataclasses import dataclass
-from typing import Any, Dict, Tuple, Union
-
+from typing import Any, Dict, Tuple, Union, Optional
 import torch
 
 from .base import Strategy

@@ -62,6 +62,9 @@ if __name__ == "__main__":
         model = model.to(device=device)
         
         #run
+        print("aaaaaA ", INTRINSICS)
+        print("bbbbbB ", EXTRINSICS)
+        
         prediction = model.inference(
             image=IMAGES,
             intrinsics=INTRINSICS,

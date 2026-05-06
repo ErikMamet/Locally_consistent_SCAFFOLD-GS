@@ -16,6 +16,7 @@ dependencies = [
     "einops",
     "huggingface_hub",
     "imageio",
+    "triton",
     "xformers",
     "fastapi",
     "uvicorn",

@@ -213,6 +213,9 @@ class DepthAnything3(nn.Module, PyTorchModelHubMixin):
         # Convert raw output to prediction
         prediction = self._convert_to_prediction(raw_output)
 
+        print("1 asdf asdf ", prediction)
+        print("2 asdf asdf ", intrinsics)
+        print("3 asdf asdf ", extrinsics)
         # Align prediction to extrinsincs
         prediction = self._align_to_input_extrinsics_intrinsics(
             extrinsics, intrinsics, prediction, align_to_input_ext_scale

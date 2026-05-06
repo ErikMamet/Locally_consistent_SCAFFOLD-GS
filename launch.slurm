@@ -1,11 +1,11 @@
 #!/bin/bash
-#SBATCH --array=0-0
+#SBATCH --array=0-6
 #SBATCH --account=def-scoulombe
 #SBATCH --job-name=GIFStream
 #SBATCH --output=nerf-%A_%a.out
 #SBATCH --cpus-per-task=4
 #SBATCH --mem=40G
-#SBATCH --time=0:45:00
+#SBATCH --time=1:00:00
 #SBATCH --gpus=a100
 
 EXP_NAMES=(
@@ -15,10 +15,12 @@ EXP_NAMES=(
   SfM_init
   SfM_init
   SfM_init
+  SfM_init
 )
 
 OFFSET_LAMBDA_LIST=(
-  0.01
+  0
+  0.05
   0.1
   0.2
   0.3
@@ -26,14 +28,14 @@ OFFSET_LAMBDA_LIST=(
   0.5
 )
 
-SCENE_LIST=(sear_steak flame_steak cook_spinach cut_roasted_beef)
+SCENE_LIST=(sear_steak flame_steak) # cook_spinach cut_roasted_beef)
 
 
 ENTROPY_LAMBDA_LIST=(0.0005 0.001 0.002 0.004)
 RATE=1 #carefull, changing rate changes rd tradeoff AND QUANTIZATION STEPS
 IDX=$SLURM_ARRAY_TASK_ID
 OFFSET_LAMBDA=${OFFSET_LAMBDA_LIST[$IDX]}
-EXP_NAME0=${EXP_NAMES[$IDX]}
+EXP_NAME0=${EXP_NAMES[$IDX]}/${OFFSET_LAMBDA}
 
 echo "job run at $(date +"%T")"
 
@@ -42,33 +44,57 @@ module load cuda/12.9 python/3.11 opencv/4.12 scipy-stack/2023b ffmpeg colmap
 
 # Create and activate venv
 # Virtual environment in temporary folder
-VENV_DIR=$SLURM_TMPDIR/GIFStream
-virtualenv -q --no-download $VENV_DIR || { echo "Failed to create venv"; exit 1; }
-source $VENV_DIR/bin/activate
-# Install build & deps
-cd examples
-pip install --no-index torch==2.11.0 torchvision==0.26.0 torchtext==0.6.0+computecanada torchaudio==2.11.0+computecanada
-python -c "import torch; print('Torch version:', torch.__version__)"
-echo "\n \n entering pip install requirements_server.txt"
-pip install --no-index --find-links=$SLURM_TMPDIR/wheelhouse -r requirements_server.txt
-echo "\n \n exiting pip install requirements_server.txt"
-cd ..
+VENV_DIR=~/venvs/GIFStream4
 
+#virtualenv -q --no-download $VENV_DIR || { echo "Failed to create venv"; exit 1; }
+source $VENV_DIR/bin/activate
+cp -r ~/wheelhouse $SLURM_TMPDIR/
+# Install build & deps
+pip install --no-index torch==2.9.0 torchvision==0.24.0 torchtext==0.6.0+computecanada torchaudio==2.9.0+computecanada
+python -c "import torch; print('Torch version:', torch.__version__)"
+#pip wheel ~/src_pkgs/pycolmap -w ~/wheelhouse --no-build-isolation --no-deps
+#pip wheel ~/src_pkgs/fused-ssim -w ~/wheelhouse --no-build-isolation --no-deps
+#pip wheel ~/src_pkgs/PLAS -w ~/wheelhouse --no-build-isolation --no-deps
+echo "\n \n entering pip install requirements_server.txt"
+#pip install . \
+#  --no-build-isolation \
+#  --no-index \
+#  --find-links=/cvmfs/soft.computecanada.ca/custom/python/wheelhouse/generic \
+#  --find-links=/cvmfs/soft.computecanada.ca/custom/python/wheelhouse/gentoo2023/generic \
+#  --find-links=/cvmfs/soft.computecanada.ca/custom/python/wheelhouse/gentoo2023/x86-64-v3 \
+#  --find-links=$SLURM_TMPDIR/wheelhouse
+#  
+#
+#echo "------ pip install -e . done"
+#
+#cd examples
+#pip install -r requirements_server.txt \
+#  --no-index \
+#  --find-links=/cvmfs/soft.computecanada.ca/custom/python/wheelhouse/generic \
+#  --find-links=/cvmfs/soft.computecanada.ca/custom/python/wheelhouse/gentoo2023/generic \
+#  --find-links=/cvmfs/soft.computecanada.ca/custom/python/wheelhouse/gentoo2023/x86-64-v3 \
+#  --find-links=$SLURM_TMPDIR/wheelhouse 
+#  
+#echo "\n \n exiting pip install requirements_server.txt"
+#cd ..
+#
 # only run once
-export PIP_NO_INDEX=1
-export PIP_FIND_LINKS=$HOME/wheelhouse
-export PIP_DISABLE_PIP_VERSION_CHECK=1
-pip wheel ~/src_pkgs/pycolmap -w ~/wheelhouse --no-build-isolation --no-deps
+#export PIP_NO_INDEX=1
+#export PIP_DISABLE_PIP_VERSION_CHECK=1
+#
+#pip install third_party/gridencoder --no-build-isolation \
+#  --no-index \
+#  --find-links=/cvmfs/soft.computecanada.ca/custom/python/wheelhouse/generic \
+#  --find-links=/cvmfs/soft.computecanada.ca/custom/python/wheelhouse/gentoo2023/generic \
+#  --find-links=/cvmfs/soft.computecanada.ca/custom/python/wheelhouse/gentoo2023/x86-64-v3 \
+#  --find-links=$SLURM_TMPDIR/wheelhouse 
+
 #check what version of pytorch is intalled and make sure it is the same as before 
 python -c "import torch; print('Torch:', torch.__version__, '| CUDA:', torch.version.cuda, '| Available:', torch.cuda.is_available())"
 pip list | grep torch
-pip wheel ~/src_pkgs/fused-ssim -w ~/wheelhouse --no-build-isolation --no-deps
-pip wheel ~/src_pkgs/PLAS -w ~/wheelhouse --no-build-isolation --no-deps
 
 #install pre-built wheels 
-cp -r ~/wheelhouse $SLURM_TMPDIR/
 pip install -q --no-index --upgrade pip
-pip install --no-index --find-links=$SLURM_TMPDIR/wheelhouse pycolmap fused-ssim PLAS
 
 echo "wheels have been built -- hurray !"
 
@@ -118,7 +144,7 @@ do
       TYPE=neur3d_0
   fi
   # Loop over each GOP segment
-  for ((GOP_ID=0; GOP_ID < $(((TOTAL_FRAME + GOP - 1)/GOP)) ; GOP_ID++));
+  for ((GOP_ID=0; GOP_ID < 2 ; GOP_ID++)); #$(((TOTAL_FRAME + GOP - 1)/GOP)) ; GOP_ID++));
   do
     echo "Running $SCENE GOP $GOP_ID"
       # Calculate the starting frame for this GOP
@@ -141,14 +167,13 @@ do
           --compression end2end  --rate $RATE \
           --GOP_size $(( MAX_GOP < GOP ? MAX_GOP : GOP)) --knn --start_frame $GOP_START_FRAME 
     else 
-        # For subsequent GOPs, continue training from first checkpoint
+      # For subsequent GOPs, continue training from first checkpoint
       CUDA_VISIBLE_DEVICES=0 python examples/simple_trainer_GIFStream.py $TYPE --disable_viewer --data_factor $DATA_FACTOR \
           --data_dir $SCENE_DIR/$SCENE/ --result_dir $EXP_NAME \
           --eval_steps 7000 30000 --save_steps 7000 30000 \
-          --compression_sim --rd_lambda ${ENTROPY_LAMBDA_LIST[RATE]} --entropy_model_opt --rate $RATE \
+          --compression_sim --offset_lambda $OFFSET_LAMBDA --rd_lambda ${ENTROPY_LAMBDA_LIST[RATE]} --entropy_model_opt --rate $RATE \
           --batch_size 1 --GOP_size $(( MAX_GOP < GOP ? MAX_GOP : GOP)) --knn --start_frame $GOP_START_FRAME \
-          --ckpt ${EXP_NAME}/ckpts/ckpt_6999_rank0.pt --continue_training 
-
+          --ckpt ${RESULT_DIR}/${EXP_NAME0}/${SCENE}/GOP_$((GOP_ID - 1))/r$RATE/ckpts/ckpt_6999_rank0.pt --continue_training
       # Run evaluation and rendering after training
       CUDA_VISIBLE_DEVICES=0 python examples/simple_trainer_GIFStream.py $TYPE --disable_viewer --data_factor $DATA_FACTOR \
           --data_dir $SCENE_DIR/$SCENE/ --result_dir $EXP_NAME \

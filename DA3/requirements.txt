@@ -15,7 +15,6 @@ requests
 typer
 pillow
 omegaconf
-evo
 e3nn
 moviepy
 plyfile

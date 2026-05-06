@@ -1,5 +1,7 @@
+fused-ssim
 viser
-nerfview==0.0.2
+sklearn
+kornia
 imageio
 tqdm
 torchmetrics<1.5
@@ -8,5 +10,8 @@ Pillow
 tensorboard
 tensorly
 pyyaml
-torch_scatter
 natsort
+torch_scatter
+pycolmap
+PLAS
+#nerfview==0.0.2

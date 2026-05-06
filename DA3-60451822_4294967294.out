@@ -1,0 +1,339 @@
+The following modules were not unloaded:
+  (Use "module --force purge" to unload all):
+
+  1) CCconfig        6)  ucx/1.14.1         11) flexiblas/3.3.1
+  2) gentoo/2023     7)  libfabric/1.18.0   12) blis/0.9.0
+  3) gcccore/.12.3   8)  pmix/4.2.4         13) StdEnv/2023
+  4) gcc/12.3        9)  ucc/1.2.0
+  5) hwloc/2.9.1     10) openmpi/4.1.5
+Looking in links: /cvmfs/soft.computecanada.ca/custom/python/wheelhouse/gentoo2023/x86-64-v3, /cvmfs/soft.computecanada.ca/custom/python/wheelhouse/gentoo2023/generic, /cvmfs/soft.computecanada.ca/custom/python/wheelhouse/generic
+Processing /cvmfs/soft.computecanada.ca/custom/python/wheelhouse/gentoo2023/x86-64-v3/torch-2.11.0+computecanada-cp311-cp311-linux_x86_64.whl
+Processing /cvmfs/soft.computecanada.ca/custom/python/wheelhouse/gentoo2023/generic/torchvision-0.26.0+computecanada-cp311-cp311-linux_x86_64.whl
+Processing /cvmfs/soft.computecanada.ca/custom/python/wheelhouse/generic/torchtext-0.6.0+computecanada-py3-none-any.whl
+Processing /cvmfs/soft.computecanada.ca/custom/python/wheelhouse/gentoo2023/x86-64-v3/torchaudio-2.11.0+computecanada-cp311-cp311-linux_x86_64.whl
+Processing /cvmfs/soft.computecanada.ca/custom/python/wheelhouse/generic/filelock-3.29.0+computecanada-py3-none-any.whl (from torch==2.11.0)
+Processing /cvmfs/soft.computecanada.ca/custom/python/wheelhouse/generic/typing_extensions-4.15.0+computecanada-py3-none-any.whl (from torch==2.11.0)
+Requirement already satisfied: setuptools<82 in /home/erikmam/wheel_env/lib/python3.11/site-packages (from torch==2.11.0) (65.5.0)
+Processing /cvmfs/soft.computecanada.ca/custom/python/wheelhouse/generic/sympy-1.14.0+computecanada-py3-none-any.whl (from torch==2.11.0)
+Processing /cvmfs/soft.computecanada.ca/custom/python/wheelhouse/generic/networkx-3.6.1+computecanada-py3-none-any.whl (from torch==2.11.0)
+Requirement already satisfied: jinja2 in /cvmfs/soft.computecanada.ca/easybuild/software/2023/x86-64-v3/Compiler/gcccore/scipy-stack/2023b/lib/python3.11/site-packages (from torch==2.11.0) (3.1.2+computecanada)
+Processing /cvmfs/soft.computecanada.ca/custom/python/wheelhouse/generic/fsspec-2026.4.0+computecanada-py3-none-any.whl (from torch==2.11.0)
+Requirement already satisfied: numpy in /cvmfs/soft.computecanada.ca/easybuild/software/2023/x86-64-v3/Compiler/gcccore/scipy-stack/2023b/lib/python3.11/site-packages (from torchvision==0.26.0) (1.25.2+computecanada)
+Processing /cvmfs/soft.computecanada.ca/custom/python/wheelhouse/gentoo2023/x86-64-v3/Pillow_SIMD-9.5.0.post2+computecanada-cp311-cp311-linux_x86_64.whl (from torchvision==0.26.0)
+Processing /cvmfs/soft.computecanada.ca/custom/python/wheelhouse/generic/tqdm-4.67.3+computecanada-py3-none-any.whl (from torchtext==0.6.0+computecanada)
+Requirement already satisfied: requests in /cvmfs/soft.computecanada.ca/easybuild/software/2023/x86-64-v3/Compiler/gcccore/scipy-stack/2023b/lib/python3.11/site-packages (from torchtext==0.6.0+computecanada) (2.31.0+computecanada)
+Requirement already satisfied: six in /cvmfs/soft.computecanada.ca/easybuild/software/2023/x86-64-v3/Compiler/gcccore/ipykernel/2023b/lib/python3.11/site-packages (from torchtext==0.6.0+computecanada) (1.16.0+computecanada)
+Processing /cvmfs/soft.computecanada.ca/custom/python/wheelhouse/gentoo2023/generic/sentencepiece-0.2.0+computecanada-cp311-cp311-linux_x86_64.whl (from torchtext==0.6.0+computecanada)
+Requirement already satisfied: mpmath<1.4,>=1.1.0 in /cvmfs/soft.computecanada.ca/easybuild/software/2023/x86-64-v3/Compiler/gcccore/scipy-stack/2023b/lib/python3.11/site-packages (from sympy>=1.13.3->torch==2.11.0) (1.3.0+computecanada)
+Requirement already satisfied: MarkupSafe>=2.0 in /cvmfs/soft.computecanada.ca/easybuild/software/2023/x86-64-v3/Compiler/gcccore/scipy-stack/2023b/lib/python3.11/site-packages (from jinja2->torch==2.11.0) (2.1.3+computecanada)
+Requirement already satisfied: charset-normalizer<4,>=2 in /cvmfs/soft.computecanada.ca/easybuild/software/2023/x86-64-v3/Compiler/gcccore/scipy-stack/2023b/lib/python3.11/site-packages (from requests->torchtext==0.6.0+computecanada) (3.2.0+computecanada)
+Requirement already satisfied: idna<4,>=2.5 in /cvmfs/soft.computecanada.ca/easybuild/software/2023/x86-64-v3/Compiler/gcccore/scipy-stack/2023b/lib/python3.11/site-packages (from requests->torchtext==0.6.0+computecanada) (3.4+computecanada)
+Requirement already satisfied: urllib3<3,>=1.21.1 in /cvmfs/soft.computecanada.ca/easybuild/software/2023/x86-64-v3/Compiler/gcccore/scipy-stack/2023b/lib/python3.11/site-packages (from requests->torchtext==0.6.0+computecanada) (2.0.4+computecanada)
+Requirement already satisfied: certifi>=2017.4.17 in /cvmfs/soft.computecanada.ca/easybuild/software/2023/x86-64-v3/Compiler/gcccore/scipy-stack/2023b/lib/python3.11/site-packages (from requests->torchtext==0.6.0+computecanada) (2023.7.22+computecanada)
+Installing collected packages: sentencepiece, typing-extensions, tqdm, sympy, pillow-simd, networkx, fsspec, filelock, torch, torchvision, torchtext, torchaudio
+  Attempting uninstall: typing-extensions
+    Found existing installation: typing_extensions 4.7.1+computecanada
+    Not uninstalling typing-extensions at /cvmfs/soft.computecanada.ca/easybuild/software/2023/x86-64-v3/Compiler/gcccore/scipy-stack/2023b/lib/python3.11/site-packages, outside environment /home/erikmam/wheel_env
+    Can't uninstall 'typing_extensions'. No files were found to uninstall.
+  Attempting uninstall: sympy
+    Found existing installation: sympy 1.12+computecanada
+    Not uninstalling sympy at /cvmfs/soft.computecanada.ca/easybuild/software/2023/x86-64-v3/Compiler/gcccore/scipy-stack/2023b/lib/python3.11/site-packages, outside environment /home/erikmam/wheel_env
+    Can't uninstall 'sympy'. No files were found to uninstall.
+Successfully installed filelock-3.29.0+computecanada fsspec-2026.4.0+computecanada networkx-3.6.1+computecanada pillow-simd-9.5.0.post2+computecanada sentencepiece-0.2.0+computecanada sympy-1.14.0+computecanada torch-2.11.0+computecanada torchaudio-2.11.0+computecanada torchtext-0.6.0+computecanada torchvision-0.26.0+computecanada tqdm-4.67.3+computecanada typing-extensions-4.15.0+computecanada
+/home/erikmam/wheel_env/bin/python
+/home/erikmam/wheel_env/bin/pip
+Python 3.11.5
+Looking in links: /cvmfs/soft.computecanada.ca/custom/python/wheelhouse/gentoo2023/x86-64-v3, /cvmfs/soft.computecanada.ca/custom/python/wheelhouse/gentoo2023/generic, /cvmfs/soft.computecanada.ca/custom/python/wheelhouse/generic, /cvmfs/soft.computecanada.ca/custom/python/wheelhouse/generic
+Requirement already satisfied: pip in /home/erikmam/wheel_env/lib/python3.11/site-packages (23.2.1)
+Requirement already satisfied: setuptools<82 in /home/erikmam/wheel_env/lib/python3.11/site-packages (65.5.0)
+Processing /cvmfs/soft.computecanada.ca/custom/python/wheelhouse/generic/wheel-0.46.3+computecanada-py3-none-any.whl
+Processing /cvmfs/soft.computecanada.ca/custom/python/wheelhouse/generic/packaging-26.1+computecanada-py3-none-any.whl (from wheel)
+Installing collected packages: packaging, wheel
+  Attempting uninstall: packaging
+    Found existing installation: packaging 23.1+computecanada
+    Not uninstalling packaging at /cvmfs/soft.computecanada.ca/easybuild/software/2023/x86-64-v3/Compiler/gcccore/ipykernel/2023b/lib/python3.11/site-packages, outside environment /home/erikmam/wheel_env
+    Can't uninstall 'packaging'. No files were found to uninstall.
+Successfully installed packaging-26.1+computecanada wheel-0.46.3+computecanada
+Looking in links: /cvmfs/soft.computecanada.ca/custom/python/wheelhouse/gentoo2023/x86-64-v3, /cvmfs/soft.computecanada.ca/custom/python/wheelhouse/gentoo2023/generic, /cvmfs/soft.computecanada.ca/custom/python/wheelhouse/generic
+Processing /home/erikmam/src_pkgs/pycolmap
+  Preparing metadata (pyproject.toml): started
+  Preparing metadata (pyproject.toml): finished with status 'done'
+Building wheels for collected packages: pycolmap
+  Building wheel for pycolmap (pyproject.toml): started
+  Building wheel for pycolmap (pyproject.toml): finished with status 'done'
+  Created wheel for pycolmap: filename=pycolmap-0.0.1-py3-none-any.whl size=16535 sha256=5de70de00b55981bceb712284703aa66a01abb36aaed70c2369b553eeda2f056
+  Stored in directory: /tmp/pip-ephem-wheel-cache-9fl1betb/wheels/5f/14/81/9e75b272ca2bfee377ea42dfdd0abc7f2bb2a860fb9937d3a7
+Successfully built pycolmap
+\n 1 yayaYAYA \n
+Looking in links: /cvmfs/soft.computecanada.ca/custom/python/wheelhouse/gentoo2023/x86-64-v3, /cvmfs/soft.computecanada.ca/custom/python/wheelhouse/gentoo2023/generic, /cvmfs/soft.computecanada.ca/custom/python/wheelhouse/generic, /home/erikmam/wheelhouse
+Processing /home/erikmam/wheelhouse/pycolmap-0.0.1-py3-none-any.whl
+Installing collected packages: pycolmap
+Successfully installed pycolmap-0.0.1
+\n 2 yayaYAYA \n
+Looking in links: /cvmfs/soft.computecanada.ca/custom/python/wheelhouse/gentoo2023/x86-64-v3, /cvmfs/soft.computecanada.ca/custom/python/wheelhouse/gentoo2023/generic, /cvmfs/soft.computecanada.ca/custom/python/wheelhouse/generic, /cvmfs/soft.computecanada.ca/custom/python/wheelhouse/generic, /cvmfs/soft.computecanada.ca/custom/python/wheelhouse/gentoo2023/generic, /cvmfs/soft.computecanada.ca/custom/python/wheelhouse/gentoo2023/x86-64-v3
+Obtaining file:///lustre06/project/6006797/erikmam/Locally_consistent_SCAFFOLD-GS/DA3
+  Installing build dependencies: started
+  Installing build dependencies: finished with status 'done'
+  Checking if build backend supports build_editable: started
+  Checking if build backend supports build_editable: finished with status 'done'
+  Getting requirements to build editable: started
+  Getting requirements to build editable: finished with status 'done'
+  Installing backend dependencies: started
+  Installing backend dependencies: finished with status 'done'
+  Preparing editable metadata (pyproject.toml): started
+  Preparing editable metadata (pyproject.toml): finished with status 'done'
+Processing /cvmfs/soft.computecanada.ca/custom/python/wheelhouse/generic/e3nn-0.6.0+computecanada-py3-none-any.whl (from depth-anything-3==0.0.0)
+Processing /cvmfs/soft.computecanada.ca/custom/python/wheelhouse/generic/einops-0.8.2+computecanada-py3-none-any.whl (from depth-anything-3==0.0.0)
+Processing /cvmfs/soft.computecanada.ca/custom/python/wheelhouse/generic/fastapi-0.136.1+computecanada-py3-none-any.whl (from depth-anything-3==0.0.0)
+Processing /cvmfs/soft.computecanada.ca/custom/python/wheelhouse/generic/huggingface_hub-1.11.0+computecanada-py3-none-any.whl (from depth-anything-3==0.0.0)
+Processing /cvmfs/soft.computecanada.ca/custom/python/wheelhouse/generic/imageio-2.37.2+computecanada-py3-none-any.whl (from depth-anything-3==0.0.0)
+Processing /cvmfs/soft.computecanada.ca/custom/python/wheelhouse/generic/moviepy-2.2.1+computecanada-py3-none-any.whl (from depth-anything-3==0.0.0)
+Processing /cvmfs/soft.computecanada.ca/custom/python/wheelhouse/generic/moviepy-1.0.3+computecanada-py3-none-any.whl (from depth-anything-3==0.0.0)
+Processing /cvmfs/soft.computecanada.ca/custom/python/wheelhouse/generic/omegaconf-2.3.0+computecanada-py3-none-any.whl (from depth-anything-3==0.0.0)
+Requirement already satisfied: pillow in /cvmfs/soft.computecanada.ca/easybuild/software/2023/x86-64-v3/Compiler/gcccore/scipy-stack/2023b/lib/python3.11/site-packages (from depth-anything-3==0.0.0) (10.0.0+computecanada)
+Processing /cvmfs/soft.computecanada.ca/custom/python/wheelhouse/generic/plyfile-1.0.3+computecanada-py3-none-any.whl (from depth-anything-3==0.0.0)
+Requirement already satisfied: requests in /cvmfs/soft.computecanada.ca/easybuild/software/2023/x86-64-v3/Compiler/gcccore/scipy-stack/2023b/lib/python3.11/site-packages (from depth-anything-3==0.0.0) (2.31.0+computecanada)
+Processing /cvmfs/soft.computecanada.ca/custom/python/wheelhouse/gentoo2023/generic/safetensors-0.7.0+computecanada-cp38-abi3-linux_x86_64.whl (from depth-anything-3==0.0.0)
+Processing /cvmfs/soft.computecanada.ca/custom/python/wheelhouse/generic/trimesh-4.7.1+computecanada-py3-none-any.whl (from depth-anything-3==0.0.0)
+Processing /cvmfs/soft.computecanada.ca/custom/python/wheelhouse/generic/typer-0.24.2+computecanada-py3-none-any.whl (from depth-anything-3==0.0.0)
+Processing /cvmfs/soft.computecanada.ca/custom/python/wheelhouse/generic/uvicorn-0.46.0+computecanada-py3-none-any.whl (from depth-anything-3==0.0.0)
+Processing /cvmfs/soft.computecanada.ca/custom/python/wheelhouse/gentoo2023/generic/xformers-0.0.35+torch210.computecanada-py39-none-linux_x86_64.whl (from depth-anything-3==0.0.0)
+Processing /cvmfs/soft.computecanada.ca/custom/python/wheelhouse/generic/decorator-4.4.2+computecanada-py2.py3-none-any.whl (from moviepy->depth-anything-3==0.0.0)
+Requirement already satisfied: tqdm<5.0,>=4.11.2 in /home/erikmam/wheel_env/lib/python3.11/site-packages (from moviepy->depth-anything-3==0.0.0) (4.67.3+computecanada)
+Processing /cvmfs/soft.computecanada.ca/custom/python/wheelhouse/generic/proglog-0.1.12+computecanada-py3-none-any.whl (from moviepy->depth-anything-3==0.0.0)
+Requirement already satisfied: numpy>=1.17.3 in /cvmfs/soft.computecanada.ca/easybuild/software/2023/x86-64-v3/Compiler/gcccore/scipy-stack/2023b/lib/python3.11/site-packages (from moviepy->depth-anything-3==0.0.0) (1.25.2+computecanada)
+Processing /cvmfs/soft.computecanada.ca/custom/python/wheelhouse/generic/imageio_ffmpeg-0.6.0+computecanada-py3-none-any.whl (from moviepy->depth-anything-3==0.0.0)
+Requirement already satisfied: charset-normalizer<4,>=2 in /cvmfs/soft.computecanada.ca/easybuild/software/2023/x86-64-v3/Compiler/gcccore/scipy-stack/2023b/lib/python3.11/site-packages (from requests->depth-anything-3==0.0.0) (3.2.0+computecanada)
+Requirement already satisfied: idna<4,>=2.5 in /cvmfs/soft.computecanada.ca/easybuild/software/2023/x86-64-v3/Compiler/gcccore/scipy-stack/2023b/lib/python3.11/site-packages (from requests->depth-anything-3==0.0.0) (3.4+computecanada)
+Requirement already satisfied: urllib3<3,>=1.21.1 in /cvmfs/soft.computecanada.ca/easybuild/software/2023/x86-64-v3/Compiler/gcccore/scipy-stack/2023b/lib/python3.11/site-packages (from requests->depth-anything-3==0.0.0) (2.0.4+computecanada)
+Requirement already satisfied: certifi>=2017.4.17 in /cvmfs/soft.computecanada.ca/easybuild/software/2023/x86-64-v3/Compiler/gcccore/scipy-stack/2023b/lib/python3.11/site-packages (from requests->depth-anything-3==0.0.0) (2023.7.22+computecanada)
+Processing /cvmfs/soft.computecanada.ca/custom/python/wheelhouse/generic/click-8.3.3+computecanada-py3-none-any.whl (from typer->depth-anything-3==0.0.0)
+Processing /cvmfs/soft.computecanada.ca/custom/python/wheelhouse/generic/shellingham-1.5.4+computecanada-py2.py3-none-any.whl (from typer->depth-anything-3==0.0.0)
+Processing /cvmfs/soft.computecanada.ca/custom/python/wheelhouse/generic/rich-15.0.0+computecanada-py3-none-any.whl (from typer->depth-anything-3==0.0.0)
+Processing /cvmfs/soft.computecanada.ca/custom/python/wheelhouse/generic/annotated_doc-0.0.4+computecanada-py3-none-any.whl (from typer->depth-anything-3==0.0.0)
+Requirement already satisfied: sympy in /home/erikmam/wheel_env/lib/python3.11/site-packages (from e3nn->depth-anything-3==0.0.0) (1.14.0+computecanada)
+Requirement already satisfied: scipy in /cvmfs/soft.computecanada.ca/easybuild/software/2023/x86-64-v3/Compiler/gcccore/scipy-stack/2023b/lib/python3.11/site-packages (from e3nn->depth-anything-3==0.0.0) (1.11.2+computecanada)
+Requirement already satisfied: torch>=2.2.0 in /home/erikmam/wheel_env/lib/python3.11/site-packages (from e3nn->depth-anything-3==0.0.0) (2.11.0+computecanada)
+Processing /cvmfs/soft.computecanada.ca/custom/python/wheelhouse/generic/opt_einsum_fx-0.1.4+computecanada-py3-none-any.whl (from e3nn->depth-anything-3==0.0.0)
+Processing /cvmfs/soft.computecanada.ca/custom/python/wheelhouse/generic/starlette-1.0.0+computecanada-py3-none-any.whl (from fastapi->depth-anything-3==0.0.0)
+Processing /cvmfs/soft.computecanada.ca/custom/python/wheelhouse/generic/pydantic-2.13.3+computecanada-py3-none-any.whl (from fastapi->depth-anything-3==0.0.0)
+Requirement already satisfied: typing-extensions>=4.8.0 in /home/erikmam/wheel_env/lib/python3.11/site-packages (from fastapi->depth-anything-3==0.0.0) (4.15.0+computecanada)
+Processing /cvmfs/soft.computecanada.ca/custom/python/wheelhouse/generic/typing_inspection-0.4.2+computecanada-py3-none-any.whl (from fastapi->depth-anything-3==0.0.0)
+Requirement already satisfied: filelock>=3.10.0 in /home/erikmam/wheel_env/lib/python3.11/site-packages (from huggingface-hub->depth-anything-3==0.0.0) (3.29.0+computecanada)
+Requirement already satisfied: fsspec>=2023.5.0 in /home/erikmam/wheel_env/lib/python3.11/site-packages (from huggingface-hub->depth-anything-3==0.0.0) (2026.4.0+computecanada)
+Processing /cvmfs/soft.computecanada.ca/custom/python/wheelhouse/gentoo2023/generic/hf_xet-1.4.3+computecanada-cp37-abi3-linux_x86_64.whl (from huggingface-hub->depth-anything-3==0.0.0)
+Processing /cvmfs/soft.computecanada.ca/custom/python/wheelhouse/generic/httpx-0.28.1+computecanada-py3-none-any.whl (from huggingface-hub->depth-anything-3==0.0.0)
+Requirement already satisfied: packaging>=20.9 in /home/erikmam/wheel_env/lib/python3.11/site-packages (from huggingface-hub->depth-anything-3==0.0.0) (26.1+computecanada)
+Requirement already satisfied: pyyaml>=5.1 in /cvmfs/soft.computecanada.ca/easybuild/software/2023/x86-64-v3/Compiler/gcccore/scipy-stack/2023b/lib/python3.11/site-packages (from huggingface-hub->depth-anything-3==0.0.0) (6.0.1+computecanada)
+Processing /cvmfs/soft.computecanada.ca/custom/python/wheelhouse/generic/antlr4_python3_runtime-4.9.3+computecanada-py3-none-any.whl (from omegaconf->depth-anything-3==0.0.0)
+Processing /cvmfs/soft.computecanada.ca/custom/python/wheelhouse/generic/h11-0.16.0+computecanada-py3-none-any.whl (from uvicorn->depth-anything-3==0.0.0)
+Requirement already satisfied: anyio in /cvmfs/soft.computecanada.ca/easybuild/software/2023/x86-64-v3/Compiler/gcccore/scipy-stack/2023b/lib/python3.11/site-packages (from httpx<1,>=0.23.0->huggingface-hub->depth-anything-3==0.0.0) (3.7.1+computecanada)
+Processing /cvmfs/soft.computecanada.ca/custom/python/wheelhouse/generic/httpcore-1.0.9+computecanada-py3-none-any.whl (from httpx<1,>=0.23.0->huggingface-hub->depth-anything-3==0.0.0)
+Processing /cvmfs/soft.computecanada.ca/custom/python/wheelhouse/generic/opt_einsum-3.4.0+computecanada-py3-none-any.whl (from opt_einsum_fx>=0.1.4->e3nn->depth-anything-3==0.0.0)
+Processing /cvmfs/soft.computecanada.ca/custom/python/wheelhouse/generic/annotated_types-0.7.0+computecanada-py3-none-any.whl (from pydantic>=2.9.0->fastapi->depth-anything-3==0.0.0)
+Processing /cvmfs/soft.computecanada.ca/custom/python/wheelhouse/gentoo2023/x86-64-v3/pydantic_core-2.46.3+computecanada-cp311-cp311-linux_x86_64.whl (from pydantic>=2.9.0->fastapi->depth-anything-3==0.0.0)
+Processing /cvmfs/soft.computecanada.ca/custom/python/wheelhouse/generic/markdown_it_py-4.0.0+computecanada-py3-none-any.whl (from rich>=12.3.0->typer->depth-anything-3==0.0.0)
+Requirement already satisfied: pygments<3.0.0,>=2.13.0 in /cvmfs/soft.computecanada.ca/easybuild/software/2023/x86-64-v3/Compiler/gcccore/ipykernel/2023b/lib/python3.11/site-packages (from rich>=12.3.0->typer->depth-anything-3==0.0.0) (2.16.1+computecanada)
+Requirement already satisfied: setuptools<82 in /home/erikmam/wheel_env/lib/python3.11/site-packages (from torch>=2.2.0->e3nn->depth-anything-3==0.0.0) (65.5.0)
+Requirement already satisfied: networkx>=2.5.1 in /home/erikmam/wheel_env/lib/python3.11/site-packages (from torch>=2.2.0->e3nn->depth-anything-3==0.0.0) (3.6.1+computecanada)
+Requirement already satisfied: jinja2 in /cvmfs/soft.computecanada.ca/easybuild/software/2023/x86-64-v3/Compiler/gcccore/scipy-stack/2023b/lib/python3.11/site-packages (from torch>=2.2.0->e3nn->depth-anything-3==0.0.0) (3.1.2+computecanada)
+Requirement already satisfied: mpmath<1.4,>=1.1.0 in /cvmfs/soft.computecanada.ca/easybuild/software/2023/x86-64-v3/Compiler/gcccore/scipy-stack/2023b/lib/python3.11/site-packages (from sympy->e3nn->depth-anything-3==0.0.0) (1.3.0+computecanada)
+Requirement already satisfied: sniffio>=1.1 in /cvmfs/soft.computecanada.ca/easybuild/software/2023/x86-64-v3/Compiler/gcccore/scipy-stack/2023b/lib/python3.11/site-packages (from anyio->httpx<1,>=0.23.0->huggingface-hub->depth-anything-3==0.0.0) (1.3.0+computecanada)
+Processing /cvmfs/soft.computecanada.ca/custom/python/wheelhouse/generic/mdurl-0.1.2+computecanada-py3-none-any.whl (from markdown-it-py>=2.2.0->rich>=12.3.0->typer->depth-anything-3==0.0.0)
+Requirement already satisfied: MarkupSafe>=2.0 in /cvmfs/soft.computecanada.ca/easybuild/software/2023/x86-64-v3/Compiler/gcccore/scipy-stack/2023b/lib/python3.11/site-packages (from jinja2->torch>=2.2.0->e3nn->depth-anything-3==0.0.0) (2.1.3+computecanada)
+Building wheels for collected packages: depth-anything-3
+  Building editable for depth-anything-3 (pyproject.toml): started
+  Building editable for depth-anything-3 (pyproject.toml): finished with status 'done'
+  Created wheel for depth-anything-3: filename=depth_anything_3-0.0.0-py3-none-any.whl size=12416 sha256=d72d0a62d893b7c04d051d03126702cd0a8dd069c8db9f2c9022203023f81a9d
+  Stored in directory: /tmp/pip-ephem-wheel-cache-o_61_fbl/wheels/d7/85/c6/606ed8e156edbcb9ce235a7c3ad79e2c282ac2325468197c4f
+Successfully built depth-anything-3
+Installing collected packages: antlr4-python3-runtime, typing-inspection, trimesh, shellingham, safetensors, pydantic-core, proglog, plyfile, opt-einsum, omegaconf, mdurl, imageio-ffmpeg, imageio, hf-xet, h11, einops, decorator, click, annotated-types, annotated-doc, uvicorn, starlette, pydantic, moviepy, markdown-it-py, httpcore, xformers, rich, opt_einsum_fx, httpx, fastapi, typer, e3nn, huggingface-hub, depth-anything-3
+  Attempting uninstall: decorator
+    Found existing installation: decorator 5.1.1+computecanada
+    Not uninstalling decorator at /cvmfs/soft.computecanada.ca/easybuild/software/2023/x86-64-v3/Compiler/gcccore/ipykernel/2023b/lib/python3.11/site-packages, outside environment /home/erikmam/wheel_env
+    Can't uninstall 'decorator'. No files were found to uninstall.
+Successfully installed annotated-doc-0.0.4+computecanada annotated-types-0.7.0+computecanada antlr4-python3-runtime-4.9.3+computecanada click-8.3.3+computecanada decorator-4.4.2+computecanada depth-anything-3-0.0.0 e3nn-0.6.0+computecanada einops-0.8.2+computecanada fastapi-0.136.1+computecanada h11-0.16.0+computecanada hf-xet-1.4.3+computecanada httpcore-1.0.9+computecanada httpx-0.28.1+computecanada huggingface-hub-1.11.0+computecanada imageio-2.37.2+computecanada imageio-ffmpeg-0.6.0+computecanada markdown-it-py-4.0.0+computecanada mdurl-0.1.2+computecanada moviepy-1.0.3+computecanada omegaconf-2.3.0+computecanada opt-einsum-3.4.0+computecanada opt_einsum_fx-0.1.4+computecanada plyfile-1.0.3+computecanada proglog-0.1.12+computecanada pydantic-2.13.3+computecanada pydantic-core-2.46.3+computecanada rich-15.0.0+computecanada safetensors-0.7.0+computecanada shellingham-1.5.4+computecanada starlette-1.0.0+computecanada trimesh-4.7.1+computecanada typer-0.24.2+computecanada typing-inspection-0.4.2+computecanada uvicorn-0.46.0+computecanada xformers-0.0.35+torch210.computecanada
+we're going into python
+W0505 14:58:19.867000 3143929 torch/utils/flop_counter.py:29] triton not found; flop counting will not work for triton kernels
+A matching Triton is not available, some optimizations will not be enabled
+Traceback (most recent call last):
+  File "/home/erikmam/wheel_env/lib/python3.11/site-packages/xformers/__init__.py", line 57, in _is_triton_available
+    import triton  # noqa
+    ^^^^^^^^^^^^^
+ModuleNotFoundError: No module named 'triton'
+[93m[WARN ] Dependency `gsplat` is required for rendering 3DGS. Install via: pip install git+https://github.com/nerfstudio-project/gsplat.git@0b4dddf04cb687367602c01196913cde6a743d70[0m
+num_cameras: 21
+num_images: 21
+num_points3D: 10848
+images1 name cam00.png
+[[ 0.99908698  0.02536675 -0.03437645]
+ [-0.0287202   0.99448636 -0.10085647]
+ [ 0.03162851  0.10175169  0.99430691]]
+we've got a pinhole camera
+[[1.46206713e+03 0.00000000e+00 1.35200000e+03]
+ [0.00000000e+00 1.46206713e+03 1.01400000e+03]
+ [0.00000000e+00 0.00000000e+00 1.00000000e+00]]
+[[ 0.8387983   0.07884046  0.53870363]
+ [-0.02844717  0.99445458 -0.10124643]
+ [-0.54369861  0.06960074  0.8363896 ]]
+we've got a pinhole camera
+[[1.46206713e+03 0.00000000e+00 1.35200000e+03]
+ [0.00000000e+00 1.46206713e+03 1.01400000e+03]
+ [0.00000000e+00 0.00000000e+00 1.00000000e+00]]
+[[ 0.89753719  0.06494533  0.43612968]
+ [-0.0204988   0.99416984 -0.10585901]
+ [-0.44046202  0.08607226  0.8936357 ]]
+we've got a pinhole camera
+[[1.46206713e+03 0.00000000e+00 1.35200000e+03]
+ [0.00000000e+00 1.46206713e+03 1.01400000e+03]
+ [0.00000000e+00 0.00000000e+00 1.00000000e+00]]
+[[ 0.94621673  0.04331825  0.3206204 ]
+ [-0.0143975   0.99565213 -0.09203018]
+ [-0.32321297  0.08246437  0.94272637]]
+we've got a pinhole camera
+[[1.46206713e+03 0.00000000e+00 1.35200000e+03]
+ [0.00000000e+00 1.46206713e+03 1.01400000e+03]
+ [0.00000000e+00 0.00000000e+00 1.00000000e+00]]
+[[ 0.98129352  0.01876681  0.19160073]
+ [-0.00425306  0.99710774 -0.0758819 ]
+ [-0.19247063  0.07364753  0.97853518]]
+we've got a pinhole camera
+[[1.46206713e+03 0.00000000e+00 1.35200000e+03]
+ [0.00000000e+00 1.46206713e+03 1.01400000e+03]
+ [0.00000000e+00 0.00000000e+00 1.00000000e+00]]
+[[ 0.99558404  0.0148355   0.09269476]
+ [-0.00745366  0.99680857 -0.07948034]
+ [-0.09357806  0.07843844  0.99251728]]
+we've got a pinhole camera
+[[1.46206713e+03 0.00000000e+00 1.35200000e+03]
+ [0.00000000e+00 1.46206713e+03 1.01400000e+03]
+ [0.00000000e+00 0.00000000e+00 1.00000000e+00]]
+[[ 0.98596493 -0.00527115 -0.16686933]
+ [-0.00798171  0.99687031 -0.07865039]
+ [ 0.16676166  0.07887843  0.98283709]]
+we've got a pinhole camera
+[[1.46206713e+03 0.00000000e+00 1.35200000e+03]
+ [0.00000000e+00 1.46206713e+03 1.01400000e+03]
+ [0.00000000e+00 0.00000000e+00 1.00000000e+00]]
+[[ 0.95624818 -0.02466209 -0.29151534]
+ [-0.00342654  0.99542806 -0.09545282]
+ [ 0.29253661  0.09227547  0.95179177]]
+we've got a pinhole camera
+[[1.46206713e+03 0.00000000e+00 1.35200000e+03]
+ [0.00000000e+00 1.46206713e+03 1.01400000e+03]
+ [0.00000000e+00 0.00000000e+00 1.00000000e+00]]
+[[ 0.91776178 -0.0207387  -0.3965895 ]
+ [-0.0205967   0.99480589 -0.09968455]
+ [ 0.3965969   0.09965511  0.91256767]]
+we've got a pinhole camera
+[[1.46206713e+03 0.00000000e+00 1.35200000e+03]
+ [0.00000000e+00 1.46206713e+03 1.01400000e+03]
+ [0.00000000e+00 0.00000000e+00 1.00000000e+00]]
+[[ 0.85393543 -0.05157864 -0.5178165 ]
+ [-0.00311968  0.99455044 -0.10420983]
+ [ 0.52036963  0.09060389  0.84912095]]
+we've got a pinhole camera
+[[1.46206713e+03 0.00000000e+00 1.35200000e+03]
+ [0.00000000e+00 1.46206713e+03 1.01400000e+03]
+ [0.00000000e+00 0.00000000e+00 1.00000000e+00]]
+[[ 0.77904862 -0.06477111 -0.62360881]
+ [-0.00841125  0.99348003 -0.11369561]
+ [ 0.62690709  0.09381973  0.77342444]]
+we've got a pinhole camera
+[[1.46206713e+03 0.00000000e+00 1.35200000e+03]
+ [0.00000000e+00 1.46206713e+03 1.01400000e+03]
+ [0.00000000e+00 0.00000000e+00 1.00000000e+00]]
+[[ 0.98496779 -0.01008923  0.1724432 ]
+ [ 0.00183605  0.99884791  0.04795295]
+ [-0.17272834 -0.0469155   0.98385154]]
+we've got a pinhole camera
+[[1.46206713e+03 0.00000000e+00 1.35200000e+03]
+ [0.00000000e+00 1.46206713e+03 1.01400000e+03]
+ [0.00000000e+00 0.00000000e+00 1.00000000e+00]]
+[[ 0.99683658 -0.04920486  0.06241558]
+ [ 0.0512729   0.99817266 -0.03197534]
+ [-0.06072819  0.03507441  0.99753791]]
+we've got a pinhole camera
+[[1.46206713e+03 0.00000000e+00 1.35200000e+03]
+ [0.00000000e+00 1.46206713e+03 1.01400000e+03]
+ [0.00000000e+00 0.00000000e+00 1.00000000e+00]]
+[[ 0.96446618 -0.02626646  0.26289742]
+ [ 0.04003418  0.99808527 -0.04714937]
+ [-0.26115559  0.05599886  0.96367105]]
+we've got a pinhole camera
+[[1.46206713e+03 0.00000000e+00 1.35200000e+03]
+ [0.00000000e+00 1.46206713e+03 1.01400000e+03]
+ [0.00000000e+00 0.00000000e+00 1.00000000e+00]]
+[[ 0.98727472 -0.02186688  0.15751337]
+ [ 0.02323819  0.99970636 -0.00686942]
+ [-0.15731691  0.01044233  0.98749296]]
+we've got a pinhole camera
+[[1.46206713e+03 0.00000000e+00 1.35200000e+03]
+ [0.00000000e+00 1.46206713e+03 1.01400000e+03]
+ [0.00000000e+00 0.00000000e+00 1.00000000e+00]]
+[[ 9.99998294e-01  3.28095395e-06 -1.84726051e-03]
+ [-1.05677599e-06  9.99999275e-01  1.20404099e-03]
+ [ 1.84726312e-03 -1.20403699e-03  9.99997569e-01]]
+we've got a pinhole camera
+[[1.46206713e+03 0.00000000e+00 1.35200000e+03]
+ [0.00000000e+00 1.46206713e+03 1.01400000e+03]
+ [0.00000000e+00 0.00000000e+00 1.00000000e+00]]
+[[ 0.9949299   0.00144479 -0.10056045]
+ [-0.00577334  0.99906841 -0.04276659]
+ [ 0.10040498  0.04313033  0.99401138]]
+we've got a pinhole camera
+[[1.46206713e+03 0.00000000e+00 1.35200000e+03]
+ [0.00000000e+00 1.46206713e+03 1.01400000e+03]
+ [0.00000000e+00 0.00000000e+00 1.00000000e+00]]
+[[ 0.96638071 -0.05901611 -0.25025073]
+ [ 0.05494119  0.998219   -0.0232443 ]
+ [ 0.25117682  0.00871377  0.967902  ]]
+we've got a pinhole camera
+[[1.46206713e+03 0.00000000e+00 1.35200000e+03]
+ [0.00000000e+00 1.46206713e+03 1.01400000e+03]
+ [0.00000000e+00 0.00000000e+00 1.00000000e+00]]
+[[ 0.93407455 -0.06478475 -0.35115193]
+ [ 0.0529148   0.9976596  -0.04330536]
+ [ 0.35313562  0.0218693   0.93531651]]
+we've got a pinhole camera
+[[1.46206713e+03 0.00000000e+00 1.35200000e+03]
+ [0.00000000e+00 1.46206713e+03 1.01400000e+03]
+ [0.00000000e+00 0.00000000e+00 1.00000000e+00]]
+[[ 0.95636432 -0.02428609 -0.2911657 ]
+ [ 0.05031616  0.99534097  0.08224746]
+ [ 0.28781168 -0.09330888  0.95313057]]
+we've got a pinhole camera
+[[1.46206713e+03 0.00000000e+00 1.35200000e+03]
+ [0.00000000e+00 1.46206713e+03 1.01400000e+03]
+ [0.00000000e+00 0.00000000e+00 1.00000000e+00]]
+[[ 0.90287965 -0.06065273 -0.42559322]
+ [ 0.12435046  0.98452295  0.12349703]
+ [ 0.41151587 -0.16442567  0.89644793]]
+we've got a pinhole camera
+[[1.46206713e+03 0.00000000e+00 1.35200000e+03]
+ [0.00000000e+00 1.46206713e+03 1.01400000e+03]
+ [0.00000000e+00 0.00000000e+00 1.00000000e+00]]
+[97m[INFO ] using SwiGLU layer as FFN[0m
+[97m[INFO ] using MLP layer as FFN[0m
+Loading weights from local directory
+[97m[INFO ] Processed Images Done taking 0.70066237449646 seconds. Shape:  torch.Size([21, 3, 378, 504])[0m
+[97m[INFO ] Using camera conditions provided by the user[0m
+[97m[INFO ] Model Forward Pass Done. Time: 2.0745632648468018 seconds[0m
+[97m[INFO ] Conversion to Prediction Done. Time: 0.006661891937255859 seconds[0m
+Traceback (most recent call last):
+  File "/lustre06/project/6006797/erikmam/Locally_consistent_SCAFFOLD-GS/./DA3/test.py", line 65, in <module>
+    prediction = model.inference(
+                 ^^^^^^^^^^^^^^^^
+  File "/lustre06/project/6006797/erikmam/Locally_consistent_SCAFFOLD-GS/DA3/src/depth_anything_3/api.py", line 217, in inference
+    prediction = self._align_to_input_extrinsics_intrinsics(
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/lustre06/project/6006797/erikmam/Locally_consistent_SCAFFOLD-GS/DA3/src/depth_anything_3/api.py", line 353, in _align_to_input_extrinsics_intrinsics
+    _, _, scale, aligned_extrinsics = align_poses_umeyama(
+                                      ^^^^^^^^^^^^^^^^^^^^
+  File "/lustre06/project/6006797/erikmam/Locally_consistent_SCAFFOLD-GS/DA3/src/depth_anything_3/utils/pose_align.py", line 182, in align_poses_umeyama
+    r, t, s = _ransac_align_sim3(
+              ^^^^^^^^^^^^^^^^^^^
+  File "/lustre06/project/6006797/erikmam/Locally_consistent_SCAFFOLD-GS/DA3/src/depth_anything_3/utils/pose_align.py", line 124, in _ransac_align_sim3
+    r0, t0, s0, pose_est0 = _umeyama_sim3_from_paths(pose_ref, pose_est)
+    ^^^^^^^^^^^^^^^^^^^^^
+TypeError: cannot unpack non-iterable NoneType object
