@@ -4,7 +4,7 @@
 #SBATCH --output=DA3-%A_%a.out
 #SBATCH --cpus-per-task=4
 #SBATCH --mem=40G
-#SBATCH --time=00:30:00
+#SBATCH --time=00:10:00
 #SBATCH --gpus=a100
 
 ######################## ON LOGIN NODE ####################
@@ -36,8 +36,8 @@ module load boost eigen colmap
 # 2. Create clean venv
 # -------------------------
 rm -rf ~/wheel_env
-python -m venv ~/wheel_env
-source ~/wheel_env/bin/activate
+python -m venv ~/wheel_env2
+source ~/wheel_env2/bin/activate
 export PYTHONNOUSERSITE=1
 export PIP_USER=0
 export PIP_NO_INDEX=1

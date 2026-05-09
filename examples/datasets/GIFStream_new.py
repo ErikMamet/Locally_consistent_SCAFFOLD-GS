@@ -36,7 +36,8 @@ class Parser:
         factor: int = 1,
         normalize: bool = False,
         test_every: int = 8,
-        first_frame: int = 0
+        first_frame: int = 0,
+        init_sampling_size = -1,
     ):
         self.data_dir = data_dir
         self.factor = factor
@@ -53,7 +54,11 @@ class Parser:
         manager = SceneManager(colmap_dir)
         manager.load_cameras()
         manager.load_images()
-        manager.load_points3D()
+        if init_sampling_size > 0 :
+            manager.load_points3D()
+        else :
+            print("loading w/ load_points_3D_bis : sampling size ", init_sampling_size)
+            manager.load_points3D_bis(init_sampling_size, input_file = data_dir)
 
         # Extract extrinsic matrices in world-to-camera format.
         imdata = manager.images

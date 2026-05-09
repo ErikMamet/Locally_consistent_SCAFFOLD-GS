@@ -113,7 +113,8 @@ class Config:
     
     # Render trajectory path
     render_traj_path: str = "interp"
-
+    # voxel downsample size (if -1 sfm init)
+    init_sampling_size:float = -1
     # Path to the Mip-NeRF 360 dataset
     data_dir: str = "data/360_v2/garden"
     # Downsample factor for the dataset
@@ -467,6 +468,7 @@ class Runner:
             normalize=cfg.normalize_world_space,
             test_every=cfg.test_every,
             first_frame=cfg.start_frame,
+            init_sampling_size=cfg.init_sampling_size,
         )
         self.trainset = Dataset(
             self.parser,
@@ -668,7 +670,7 @@ class Runner:
             selected_scales = torch.exp(self.splats["scales"][visible_anchor_mask])  # [M, 6]
             selected_time_features = self.splats["time_features"][visible_anchor_mask][:,pre:aft].mean(dim=1) if aft - pre >1 else self.splats["time_features"][visible_anchor_mask][:,feat_start]# [M,T,C]
             factors = fake_quantize_factors(self.splats["factors"], q_aware=False)
-            selected_factors = factors[visible_anchor_mask]
+            selected_factors =  [visible_anchor_mask]
             if self.cfg.knn:
                 if self.indices is None or self.indices.shape[0] != self.splats["anchors"].shape[0]:
                     _, self.indices = find_k_neighbors(self.splats["anchors"], self.cfg.n_knn)

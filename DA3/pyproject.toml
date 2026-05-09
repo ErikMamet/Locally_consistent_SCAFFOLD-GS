@@ -12,12 +12,12 @@ license = { text = "Apache-2.0" }
 authors = [{ name = "Your Name" }]
 
 dependencies = [
+    "xformers",
     "trimesh",
     "einops",
     "huggingface_hub",
     "imageio",
     "triton",
-    "xformers",
     "fastapi",
     "uvicorn",
     "requests",

@@ -61,10 +61,6 @@ if __name__ == "__main__":
         model = DepthAnything3.from_pretrained("/home/erikmam/projects/def-scoulomb/erikmam/Locally_consistent_SCAFFOLD-GS/shared/models/DA3NESTED-GIANT-LARGE")
         model = model.to(device=device)
         
-        #run
-        print("aaaaaA ", INTRINSICS)
-        print("bbbbbB ", EXTRINSICS)
-        
         prediction = model.inference(
             image=IMAGES,
             intrinsics=INTRINSICS,

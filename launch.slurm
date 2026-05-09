@@ -1,5 +1,5 @@
 #!/bin/bash
-#SBATCH --array=0-6
+#SBATCH --array=0-4
 #SBATCH --account=def-scoulombe
 #SBATCH --job-name=GIFStream
 #SBATCH --output=nerf-%A_%a.out
@@ -9,26 +9,26 @@
 #SBATCH --gpus=a100
 
 EXP_NAMES=(
-  SfM_init
-  SfM_init
-  SfM_init
-  SfM_init
-  SfM_init
-  SfM_init
-  SfM_init
+  DA3_init_0.6
+  DA3_init_0.6
+  DA3_init_0.6
+  DA3_init_0.6
+  DA3_init_0.6
+  DA3_init_0.6
+  DA3_init_0.6
 )
 
 OFFSET_LAMBDA_LIST=(
   0
+  0.005
+  0.01
   0.05
   0.1
   0.2
-  0.3
-  0.4
   0.5
 )
 
-SCENE_LIST=(sear_steak flame_steak) # cook_spinach cut_roasted_beef)
+SCENE_LIST=(flame_steak) # cook_spinach cut_roasted_beef)
 
 
 ENTROPY_LAMBDA_LIST=(0.0005 0.001 0.002 0.004)
@@ -89,6 +89,13 @@ echo "\n \n entering pip install requirements_server.txt"
 #  --find-links=/cvmfs/soft.computecanada.ca/custom/python/wheelhouse/gentoo2023/x86-64-v3 \
 #  --find-links=$SLURM_TMPDIR/wheelhouse 
 
+pip install scipy \
+  --no-index \
+  --find-links=/cvmfs/soft.computecanada.ca/custom/python/wheelhouse/generic \
+  --find-links=/cvmfs/soft.computecanada.ca/custom/python/wheelhouse/gentoo2023/generic \
+  --find-links=/cvmfs/soft.computecanada.ca/custom/python/wheelhouse/gentoo2023/x86-64-v3 \
+  --find-links=$SLURM_TMPDIR/wheelhouse 
+
 #check what version of pytorch is intalled and make sure it is the same as before 
 python -c "import torch; print('Torch:', torch.__version__, '| CUDA:', torch.version.cuda, '| Available:', torch.cuda.is_available())"
 pip list | grep torch
@@ -130,6 +137,8 @@ FIRST_FRAME=0
 RESULT_DIR="results/Neur3D"
 # Total number of frames to process
 TOTAL_FRAME=300
+# 
+INIT_SAMPLING_SIZE=0.6
 
 SCENE_DIR="/home/erikmam/projects/def-scoulomb/erikmam/Locally_consistent_SCAFFOLD-GS/Neur3D"
 # Loop over each scene in the scene list
@@ -156,6 +165,7 @@ do
       # If this is the first GOP, train from scratch
       CUDA_VISIBLE_DEVICES=0 python examples/simple_trainer_GIFStream.py $TYPE --disable_viewer --data_factor $DATA_FACTOR \
           --data_dir $SCENE_DIR/$SCENE/ --result_dir ${EXP_NAME}/ \
+          --init_sampling_size ${INIT_SAMPLING_SIZE} \
           --eval_steps 7000 30000 --save_steps 7000 30000 \
           --compression_sim --rd_lambda ${ENTROPY_LAMBDA_LIST[RATE]} --entropy_model_opt --rate $RATE \
           --batch_size 1 --offset_lambda $OFFSET_LAMBDA --GOP_size $(( MAX_GOP < GOP ? MAX_GOP : GOP)) --knn --start_frame $GOP_START_FRAME
@@ -163,6 +173,7 @@ do
       # Run evaluation and rendering after training
       CUDA_VISIBLE_DEVICES=0 python examples/simple_trainer_GIFStream.py $TYPE --disable_viewer --data_factor $DATA_FACTOR \
           --data_dir $SCENE_DIR/$SCENE/ --result_dir $EXP_NAME \
+          --init_sampling_size ${INIT_SAMPLING_SIZE}  \
           --ckpt $EXP_NAME/ckpts/ckpt_29999_rank0.pt \
           --compression end2end  --rate $RATE \
           --GOP_size $(( MAX_GOP < GOP ? MAX_GOP : GOP)) --knn --start_frame $GOP_START_FRAME 
@@ -170,6 +181,7 @@ do
       # For subsequent GOPs, continue training from first checkpoint
       CUDA_VISIBLE_DEVICES=0 python examples/simple_trainer_GIFStream.py $TYPE --disable_viewer --data_factor $DATA_FACTOR \
           --data_dir $SCENE_DIR/$SCENE/ --result_dir $EXP_NAME \
+          --init_sampling_size ${INIT_SAMPLING_SIZE}  \
           --eval_steps 7000 30000 --save_steps 7000 30000 \
           --compression_sim --offset_lambda $OFFSET_LAMBDA --rd_lambda ${ENTROPY_LAMBDA_LIST[RATE]} --entropy_model_opt --rate $RATE \
           --batch_size 1 --GOP_size $(( MAX_GOP < GOP ? MAX_GOP : GOP)) --knn --start_frame $GOP_START_FRAME \
@@ -177,6 +189,7 @@ do
       # Run evaluation and rendering after training
       CUDA_VISIBLE_DEVICES=0 python examples/simple_trainer_GIFStream.py $TYPE --disable_viewer --data_factor $DATA_FACTOR \
           --data_dir $SCENE_DIR/$SCENE/ --result_dir $EXP_NAME \
+          --init_sampling_size ${INIT_SAMPLING_SIZE}  \
           --ckpt $EXP_NAME/ckpts/ckpt_29999_rank0.pt \
           --compression end2end  --rate $RATE \
           --GOP_size $(( MAX_GOP < GOP ? MAX_GOP : GOP)) --knn --start_frame $GOP_START_FRAME 
